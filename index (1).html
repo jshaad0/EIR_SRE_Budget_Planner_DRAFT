@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year 1 SRE Budget Model — Charter School Growth Fund</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:       #0D2B45;
+    --navy-mid:   #1A3F5C;
+    --navy-light: #2A5478;
+    --blue:       #1E6FA8;
+    --blue-mid:   #2E87C8;
+    --blue-light: #D6EBF8;
+    --blue-pale:  #EEF6FC;
+    --teal:       #0E7C6B;
+    --teal-light: #D4F0EB;
+    --amber:      #C47D14;
+    --amber-light:#FDF0D8;
+    --red:        #A32D2D;
+    --red-light:  #FAEAEA;
+    --green:      #0F6E56;
+    --green-light:#E1F5EE;
+    --gray-50:    #F7F8FA;
+    --gray-100:   #EFF1F4;
+    --gray-200:   #DDE1E8;
+    --gray-400:   #8E97A6;
+    --gray-600:   #4A5568;
+    --gray-800:   #1F2937;
+    --white:      #FFFFFF;
+    --font-sans:  'DM Sans', sans-serif;
+    --font-mono:  'DM Mono', monospace;
+    --radius-sm:  4px;
+    --radius-md:  8px;
+    --radius-lg:  12px;
+    --shadow-sm:  0 1px 3px rgba(13,43,69,.08), 0 1px 2px rgba(13,43,69,.05);
+    --shadow-md:  0 4px 12px rgba(13,43,69,.10), 0 2px 4px rgba(13,43,69,.06);
+  }
+
+  html { font-size: 15px; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--gray-50);
+    color: var(--gray-800);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--navy);
+    border-bottom: 3px solid var(--blue);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    gap: 1rem;
+  }
+  .header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--blue);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 18px; height: 18px; fill: white; }
+  .header-title {
+    font-size: .8rem; font-weight: 500;
+    color: rgba(255,255,255,.7);
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .header-title strong {
+    display: block; color: white;
+    font-size: .95rem; font-weight: 600;
+    letter-spacing: 0; text-transform: none;
+  }
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .hdr-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    color: white; font-family: var(--font-sans);
+    font-size: .8rem; font-weight: 500;
+    padding: 6px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer; transition: background .15s; white-space: nowrap;
+  }
+  .hdr-btn:hover { background: rgba(255,255,255,.18); }
+  .hdr-btn.active { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.4); }
+  .hdr-btn svg { width: 14px; height: 14px; }
+  .share-toast {
+    position: fixed; top: 70px; right: 2rem;
+    background: var(--navy); color: white;
+    font-size: .8rem; padding: 8px 14px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    opacity: 0; transform: translateY(-6px);
+    transition: opacity .2s, transform .2s;
+    pointer-events: none; z-index: 200;
+  }
+  .share-toast.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── Outer page ── */
+  .page { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+  /* Left col (controls) + centre col (model) + right col (sidebar) */
+  .outer-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 300px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .outer-layout.sidebar-hidden {
+    grid-template-columns: 260px 1fr;
+  }
+
+  @media (max-width: 1080px) {
+    .outer-layout { grid-template-columns: 240px 1fr; }
+    .outer-layout.sidebar-hidden { grid-template-columns: 240px 1fr; }
+    .sidebar-col { display: none !important; }
+  }
+  @media (max-width: 700px) {
+    .outer-layout, .outer-layout.sidebar-hidden { grid-template-columns: 1fr; }
+    .page { padding: 1rem; }
+  }
+
+  /* ── Controls panel ── */
+  .controls-panel {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    position: sticky; top: 72px;
+  }
+  .panel-header { background: var(--navy); padding: .75rem 1.25rem; }
+  .panel-header h2 {
+    font-size: .75rem; font-weight: 600;
+    color: rgba(255,255,255,.7);
+    text-transform: uppercase; letter-spacing: .07em;
+  }
+  .panel-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+  .field-label {
+    font-size: .72rem; font-weight: 600;
+    color: var(--gray-600);
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  .field-sublabel { font-size: .7rem; color: var(--gray-400); margin-top: -4px; }
+  .slider-row { display: flex; align-items: center; gap: 10px; }
+  input[type="range"] {
+    flex: 1; height: 4px;
+    -webkit-appearance: none; appearance: none;
+    background: var(--gray-200); border-radius: 2px;
+    outline: none; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: var(--blue); border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(30,111,168,.15);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px;
+    background: var(--blue); border: none; border-radius: 50%;
+  }
+  .slider-val {
+    font-family: var(--font-mono); font-size: .8rem;
+    font-weight: 500; color: var(--navy);
+    min-width: 52px; text-align: right;
+  }
+  select {
+    width: 100%; padding: 7px 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans); font-size: .85rem;
+    color: var(--gray-800); background: var(--white);
+    cursor: pointer; outline: none;
+  }
+  select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(30,111,168,.12); }
+  .divider { height: 1px; background: var(--gray-100); margin: 0 -.25rem; }
+  .panel-note { font-size: .72rem; color: var(--gray-400); line-height: 1.5; padding-top: .25rem; }
+
+  /* ── Summary cards ── */
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px; margin-bottom: 1.5rem;
+  }
+  @media (max-width: 700px) { .summary-row { grid-template-columns: repeat(2,1fr); } }
+  .scard {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: .9rem 1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .scard-label {
+    font-size: .68rem; font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
+  }
+  .scard-value { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 500; color: var(--navy); }
+  .scard-value.ok   { color: var(--teal); }
+  .scard-value.warn { color: var(--amber); }
+  .scard-value.crit { color: var(--red); }
+  .scard-sub { font-size: .68rem; color: var(--gray-400); margin-top: 2px; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 1.25rem;
+    flex-wrap: wrap; margin-bottom: 1rem;
+    font-size: .75rem; color: var(--gray-600); align-items: center;
+  }
+  .leg-item { display: flex; align-items: center; gap: 5px; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── Table ── */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead tr { background: var(--navy); }
+  thead th {
+    padding: 10px 12px;
+    font-size: .68rem; font-weight: 600;
+    color: rgba(255,255,255,.65);
+    text-transform: uppercase; letter-spacing: .07em;
+    text-align: right; white-space: nowrap;
+  }
+  thead th:first-child { text-align: left; width: 34%; }
+  thead th.th-bar { width: 90px; }
+  tbody tr { border-bottom: 1px solid var(--gray-100); }
+  tbody tr:last-child { border-bottom: none; }
+  .grp-row td {
+    background: var(--navy);
+    color: rgba(255,255,255,.55);
+    font-size: .67rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--navy-light) !important;
+  }
+  td {
+    padding: 8px 12px; vertical-align: middle;
+    text-align: right; color: var(--gray-600); font-size: .82rem;
+  }
+  td:first-child { text-align: left; }
+  .cat-name { font-size: .84rem; font-weight: 500; color: var(--gray-800); line-height: 1.3; }
+  .cat-name.anchor { color: var(--navy); font-weight: 600; }
+  .cat-sub { font-size: .71rem; color: var(--gray-400); line-height: 1.4; margin-top: 2px; }
+  .cat-sub.absorbed { color: var(--teal); font-style: italic; }
+  .anchor-row { background: var(--blue-pale); }
+  .absorbed-row { background: var(--gray-50); }
+  .absorbed-row .cat-name { color: var(--gray-400); font-weight: 400; }
+  .absorbed-cell { font-size: .71rem; color: var(--gray-400); font-style: italic; text-align: left; }
+  .mono { font-family: var(--font-mono); font-size: .78rem; }
+  .c-school { color: var(--blue); }
+  .c-gen    { color: var(--teal); }
+  .c-map    { color: var(--amber); }
+  .dash     { color: var(--gray-200); }
+  .badge {
+    display: inline-block; font-size: .62rem; font-weight: 600;
+    padding: 1px 6px; border-radius: 3px; margin-left: 5px;
+    vertical-align: middle; text-transform: uppercase; letter-spacing: .04em;
+  }
+  .badge-anchor { background: var(--blue-light); color: var(--blue); }
+  .badge-map    { background: var(--amber-light); color: var(--amber); }
+  .bar-outer {
+    width: 80px; height: 10px;
+    background: var(--gray-100); border-radius: 3px;
+    overflow: hidden; display: flex; gap: 1px; margin-left: auto;
+  }
+  .bar-seg { height: 100%; transition: width .25s ease; }
+
+  /* ── Footnote ── */
+  .footnote-box {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-left: 3px solid var(--blue);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    margin-top: 1.5rem;
+    font-size: .78rem; color: var(--gray-600);
+    line-height: 1.65; box-shadow: var(--shadow-sm);
+  }
+  .footnote-box strong { color: var(--navy); }
+  .footnote-box p + p { margin-top: .6rem; }
+
+  /* ── Sidebar ── */
+  .sidebar-col {
+    position: sticky;
+    top: 72px;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-200) transparent;
+  }
+  .sidebar-col::-webkit-scrollbar { width: 4px; }
+  .sidebar-col::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
+
+  .sidebar {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .sb-header {
+    background: var(--navy);
+    padding: .75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sb-header-text { display: flex; align-items: center; gap: 8px; }
+  .sb-header-text svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .sb-title {
+    font-size: .75rem; font-weight: 600;
+    color: rgba(255,255,255,.75);
+    text-transform: uppercase; letter-spacing: .07em;
+  }
+  .sb-title strong { display: block; color: white; font-size: .82rem; font-weight: 600; text-transform: none; letter-spacing: 0; }
+
+  .sb-body { padding: 0; }
+
+  /* Accordion sections */
+  .sb-section { border-bottom: 1px solid var(--gray-100); }
+  .sb-section:last-child { border-bottom: none; }
+  .sb-section-btn {
+    width: 100%; text-align: left;
+    padding: .7rem 1rem;
+    background: none; border: none;
+    font-family: var(--font-sans);
+    font-size: .78rem; font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px;
+    transition: background .12s;
+  }
+  .sb-section-btn:hover { background: var(--gray-50); }
+  .sb-section-btn .chevron {
+    width: 14px; height: 14px;
+    color: var(--gray-400); flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .sb-section-btn.open .chevron { transform: rotate(180deg); }
+  .sb-section-content {
+    padding: 0 1rem .9rem;
+    font-size: .77rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    display: none;
+  }
+  .sb-section-content.open { display: block; }
+  .sb-section-content p + p { margin-top: .5rem; }
+  .sb-section-content strong { color: var(--navy); font-weight: 600; }
+
+  /* Callout within sidebar */
+  .sb-callout {
+    background: var(--blue-pale);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: .6rem .75rem;
+    margin: .6rem 0;
+    font-size: .75rem;
+    color: var(--navy-mid);
+    line-height: 1.5;
+  }
+  .sb-callout strong { color: var(--navy); }
+
+  .sb-callout.amber {
+    background: var(--amber-light);
+    border-left-color: var(--amber);
+    color: #5a3a08;
+  }
+  .sb-callout.teal {
+    background: var(--teal-light);
+    border-left-color: var(--teal);
+    color: #0a3d35;
+  }
+
+  /* Mini funding stream table inside sidebar */
+  .sb-stream-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: .73rem; }
+  .sb-stream-table th {
+    font-size: .65rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--gray-400);
+    padding: 3px 6px; text-align: left;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sb-stream-table td { padding: 4px 6px; color: var(--gray-600); vertical-align: top; }
+  .sb-stream-table tr:nth-child(even) td { background: var(--gray-50); }
+  .stream-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 2px; margin-right: 4px; vertical-align: middle;
+  }
+
+  /* Key questions list */
+  .sb-q-list { list-style: none; padding: 0; margin: .4rem 0 0; }
+  .sb-q-list li {
+    padding: .45rem .5rem .45rem .75rem;
+    border-left: 2px solid var(--gray-200);
+    margin-bottom: .35rem;
+    font-size: .75rem; color: var(--gray-600); line-height: 1.5;
+  }
+  .sb-q-list li strong { color: var(--navy); display: block; font-size: .73rem; margin-bottom: 1px; }
+
+  /* Threshold table */
+  .sb-thresh-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: .73rem; }
+  .sb-thresh-table th {
+    font-size: .65rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--gray-400);
+    padding: 3px 6px; text-align: left;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .sb-thresh-table td { padding: 5px 6px; color: var(--gray-600); vertical-align: top; border-bottom: 1px solid var(--gray-100); }
+  .sb-thresh-table tr:last-child td { border-bottom: none; }
+  .pct-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: .7rem; font-weight: 500;
+    padding: 1px 6px; border-radius: 3px;
+    background: var(--blue-light); color: var(--blue);
+  }
+  .pct-badge.mid { background: var(--teal-light); color: var(--teal); }
+  .pct-badge.hi  { background: var(--green-light); color: var(--green); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="header-logo" href="#">
+      <div class="logo-mark">
+        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L3 7v11h5v-5h4v5h5V7L10 2z"/></svg>
+      </div>
+      <div class="header-title">
+        Charter School Growth Fund
+        <strong>Year 1 SRE Budget Model</strong>
+      </div>
+    </a>
+    <div class="header-actions">
+      <button class="hdr-btn active" id="sidebar-toggle-btn" onclick="toggleSidebar()" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/>
+        </svg>
+        Context
+      </button>
+      <button class="hdr-btn" onclick="shareURL()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+        Copy link
+      </button>
+    </div>
+  </div>
+</header>
+<div class="share-toast" id="share-toast">Link copied to clipboard</div>
+
+<main class="page">
+  <div class="outer-layout" id="outer-layout">
+
+    <!-- ── Controls ── -->
+    <aside class="controls-panel" aria-label="Model inputs">
+      <div class="panel-header"><h2>Model inputs</h2></div>
+      <div class="panel-body">
+        <div class="field-group">
+          <label class="field-label" for="students">Students to recruit</label>
+          <div class="slider-row">
+            <input type="range" id="students" min="50" max="300" step="10" value="100">
+            <span class="slider-val" id="students-out">100</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="scenario">Cost per student</label>
+          <p class="field-sublabel">Total SRE spend ÷ enrolled</p>
+          <select id="scenario">
+            <option value="1000">$1,000 — lean</option>
+            <option value="1250" selected>$1,250 — midpoint</option>
+            <option value="1500">$1,500 — well-resourced</option>
+          </select>
+        </div>
+        <div class="divider"></div>
+        <div class="field-group">
+          <label class="field-label" for="eirgrant">EIR general grant</label>
+          <p class="field-sublabel">Flexible CSGF grant (typical $250k)</p>
+          <select id="eirgrant">
+            <option value="250000" selected>$250k — typical</option>
+            <option value="200000">$200k</option>
+            <option value="150000">$150k</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="eirpct">SRE allocation of general grant</label>
+          <p class="field-sublabel">% earmarked for student recruitment</p>
+          <div class="slider-row">
+            <input type="range" id="eirpct" min="5" max="40" step="5" value="20">
+            <span class="slider-val" id="eirpct-out">$50k</span>
+          </div>
+          <p class="field-sublabel" id="eirpct-pct" style="margin-top:2px;"></p>
+        </div>
+        <div class="divider"></div>
+        <div class="field-group">
+          <label class="field-label" for="map">MAP / enrollment grant</label>
+          <p class="field-sublabel">CSGF-funded Mariposa campaign support</p>
+          <select id="map">
+            <option value="0">None</option>
+            <option value="25000">$25k</option>
+            <option value="40000" selected>$40k</option>
+            <option value="60000">$60k</option>
+          </select>
+        </div>
+        <div class="divider"></div>
+        <p class="panel-note">Inputs update the URL automatically — bookmark or share any scenario.</p>
+      </div>
+    </aside>
+
+    <!-- ── Model (centre) ── -->
+    <div class="model-col">
+      <div class="summary-row" id="summary-row"></div>
+      <div class="legend">
+        <div class="leg-item"><span class="leg-dot" style="background:#1E6FA8;"></span> School own funds</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#0E7C6B;"></span> EIR general grant (SRE portion)</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#C47D14;"></span> MAP / enrollment grant</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#DDE1E8;"></span> Unfunded gap</div>
+      </div>
+      <div class="table-wrap">
+        <table id="main-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Budget range</th>
+              <th>School funds</th>
+              <th>EIR gen. grant</th>
+              <th>MAP grant</th>
+              <th class="th-bar">Mix</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div class="footnote-box" id="footnote"></div>
+    </div>
+
+    <!-- ── Sidebar (right) ── -->
+    <aside class="sidebar-col" id="sidebar-col" aria-label="Investment framing context">
+      <div class="sidebar">
+
+        <div class="sb-header">
+          <div class="sb-header-text">
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <div class="sb-title">Investment framing <strong>Context & key questions</strong></div>
+          </div>
+        </div>
+
+        <div class="sb-body">
+
+          <!-- Section 1: Purpose -->
+          <div class="sb-section">
+            <button class="sb-section-btn open" onclick="toggleSection(this)">
+              Purpose of this model
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-section-content open">
+              <p>This model maps what a comprehensive Year 1 SRE budget looks like for a school opening for the first time, and shows how three distinct funding streams cover each spending category.</p>
+              <p>The goal is to inform how CSGF thinks about the right investment approach across the EIR general grant and MAP/enrollment grant — and to ground that conversation in realistic numbers.</p>
+            </div>
+          </div>
+
+          <!-- Section 2: What the pilot showed -->
+          <div class="sb-section">
+            <button class="sb-section-btn" onclick="toggleSection(this)">
+              What the pilot EIR MAP revealed
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-section-content">
+              <p>During the pilot, CSGF invested <strong>$60k per EIR</strong> in MAP support — approximately <strong>$40k toward planning, infrastructure, and top-of-funnel</strong> (including $20k in paid media), with the balance toward consulting and campaign management.</p>
+              <p>Several EIRs still did not hit their enrollment goals.</p>
+              <div class="sb-callout amber">
+                <strong>The core question:</strong> Was the shortfall a digital underspend problem — or a whole-budget problem, with critical categories like dedicated FTE, field strategy, and post-offer yield work going unfunded?
+              </div>
+              <p>This model suggests it was largely the latter. MAP covered the top of the funnel. The bottom half — and the human capacity to work it — was often underfunded or absent.</p>
+            </div>
+          </div>
+
+          <!-- Section 3: Framing principle -->
+          <div class="sb-section">
+            <button class="sb-section-btn" onclick="toggleSection(this)">
+              Key framing principle
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-section-content">
+              <div class="sb-callout">
+                The MAP/enrollment grant is <strong>not designed to cover the entirety of an EIR's SRE budget.</strong> It is scoped to digital campaigns, paid media, and Mariposa consulting support.
+              </div>
+              <p>A comprehensive Year 1 strategy requires all three funding streams. MAP covers the digital infrastructure. The EIR general grant is the pre-revenue bridge that makes everything else possible.</p>
+
+              <table class="sb-stream-table">
+                <thead>
+                  <tr><th>Stream</th><th>Primary role</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="stream-dot" style="background:#1E6FA8;"></span>School funds</td>
+                    <td>Field, events, partial infra; grows post-Day 1</td>
+                  </tr>
+                  <tr>
+                    <td><span class="stream-dot" style="background:#0E7C6B;"></span>EIR gen. grant</td>
+                    <td>FTE (primary), strategy, infra, field/events pre-open</td>
+                  </tr>
+                  <tr>
+                    <td><span class="stream-dot" style="background:#C47D14;"></span>MAP grant</td>
+                    <td>Paid media, awareness, app gen, tools, Mariposa consulting</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 4: FTE imperative -->
+          <div class="sb-section">
+            <button class="sb-section-btn" onclick="toggleSection(this)">
+              The staffing imperative
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-section-content">
+              <p>The single largest line item is <strong>dedicated FTE capacity (25–35% of total SRE spend)</strong> — and the most frequently underfunded.</p>
+              <p>Lead conversion, post-offer nurture, offer management, registration follow-through, and summer onboarding are all FTE labor. There are no separate lines for these. If the FTE is missing, the back half of the funnel goes unworked — regardless of how strong the paid media campaign is.</p>
+              <div class="sb-callout teal">
+                <strong>Benchmark:</strong> ~1.3 FTEs per 100 newly enrolled students (2024 SRE Study). Collegiate Academies hired their school leader a year early, spending ~50% of their time on SRE — their best investment.
+              </div>
+              <p>Before Day 1, there is no per-pupil revenue. The EIR general grant is the bridge that makes a dedicated enrollment hire fundable.</p>
+              <p style="font-style:italic; color:var(--gray-400); font-size:.73rem; margin-top:.4rem;">"Enrollment can't be 30% of someone's job and succeed."</p>
+            </div>
+          </div>
+
+          <!-- Section 5: General grant allocation -->
+          <div class="sb-section">
+            <button class="sb-section-btn" onclick="toggleSection(this)">
+              How much of the general grant?
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-section-content">
+              <p>The slider in the model is the key variable. Here's what each threshold unlocks:</p>
+              <table class="sb-thresh-table">
+                <thead><tr><th>Allocation</th><th>What it enables</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><span class="pct-badge">10%</span><br><span style="font-size:.68rem;color:var(--gray-400);">~$25k</span></td>
+                    <td>Heavily reliant on MAP and ED time. Dedicated FTE is likely unworkable. High risk of missing enrollment goals.</td>
+                  </tr>
+                  <tr>
+                    <td><span class="pct-badge mid">20%</span><br><span style="font-size:.68rem;color:var(--gray-400);">~$50k</span></td>
+                    <td>Dedicated enrollment FTE for 6–9 months pre-open becomes fundable. <strong>The inflection point for a viable strategy.</strong></td>
+                  </tr>
+                  <tr>
+                    <td><span class="pct-badge hi">30%</span><br><span style="font-size:.68rem;color:var(--gray-400);">~$75k</span></td>
+                    <td>Both FTE and meaningful field/event spend are covered. Profile of the strongest EIR opens (MOXIE, Ft. Worth STEAM).</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="sb-callout" style="margin-top:.6rem;">
+                <strong>Recommendation:</strong> 20–25% of the general grant earmarked for SRE, with MAP layered on top, is the floor for a comprehensive strategy at 100 students.
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 6: Key questions -->
+          <div class="sb-section">
+            <button class="sb-section-btn" onclick="toggleSection(this)">
+              Key conversation questions
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sb-section-content">
+              <ul class="sb-q-list">
+                <li>
+                  <strong>What % of the general grant should be earmarked for SRE?</strong>
+                  At what point does CSGF set expectations with EIRs that a minimum allocation is needed to run a viable strategy?
+                </li>
+                <li>
+                  <strong>What is MAP meant to accomplish within that broader strategy?</strong>
+                  Are EIRs clear that MAP covers the digital layer — not the whole budget?
+                </li>
+                <li>
+                  <strong>How do we set expectations before an EIR applies?</strong>
+                  EIRs that treat MAP as their full enrollment strategy will underinvest in FTE and field work — and likely miss targets regardless of ad performance.
+                </li>
+                <li>
+                  <strong>Should SRE allocation be a structured part of EIR onboarding?</strong>
+                  This model could be a tool in that conversation: showing founders the full picture and the decisions they need to make from the general grant.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div><!-- /sb-body -->
+      </div><!-- /sidebar -->
+    </aside>
+
+  </div><!-- /outer-layout -->
+</main>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const CATS = [
+  { id:'strategy', grp:'Planning & infrastructure', name:'Market scan & strategy plan', sub:'Demo analysis, competitive scan, funnel target-setting, go-to-market plan.', pctLo:3, pctHi:5, school:.2, gen:.6, map:.2, anchor:false, absorbed:false },
+  { id:'infra', grp:'Planning & infrastructure', name:'Initial infrastructure', sub:'Website, social/Meta setup, CRM, email/text platform, lottery platform, collateral, nurture flow setup.', pctLo:7, pctHi:12, school:.15, gen:.5, map:.35, anchor:false, absorbed:false },
+  { id:'awareness', grp:'Top of funnel', name:'Awareness marketing', sub:'Brand awareness campaigns; CPM/click-based. Goal: 6–8 impressions across TAM.', pctLo:4, pctHi:8, school:.1, gen:.3, map:.6, anchor:false, absorbed:false },
+  { id:'leadgen', grp:'Top of funnel', name:'Lead generation — paid media', sub:'Meta/Google lead-gen with clear CTA. Benchmark: <$40 CPL. Primary MAP target.', pctLo:12, pctHi:18, school:.05, gen:.2, map:.75, anchor:false, absorbed:false, mapPrimary:true },
+  { id:'appgen', grp:'Top of funnel', name:'App generation campaigns', sub:'"Apply Now" traffic campaigns. More efficient after lead-nurture is in place.', pctLo:3, pctHi:6, school:.1, gen:.25, map:.65, anchor:false, absorbed:false },
+  { id:'field', grp:'Conversion & field', name:'Field strategy', sub:'Canvassing, tabling, community events, geo-fenced door-knocking.', pctLo:6, pctHi:10, school:.3, gen:.6, map:.1, anchor:false, absorbed:false },
+  { id:'events', grp:'Conversion & field', name:'Event strategy', sub:'Open houses, tours, coffee w/ principal, pizza nights, popsicles in the park. Venue/food/materials.', pctLo:5, pctHi:9, school:.35, gen:.55, map:.1, anchor:false, absorbed:false },
+  { id:'traditional', grp:'Conversion & field', name:'Traditional media', sub:'Mailers, billboards, bus ads, pre-K kits, swag.', pctLo:3, pctHi:7, school:.25, gen:.55, map:.2, anchor:false, absorbed:false },
+  { id:'fte', grp:'Capacity & staff', name:'Dedicated FTE or ED time', sub:'Benchmark: 1.3 FTEs per 100 enrolled. Covers lead conversion, nurture, offer management, registration, onboarding, and Day 1 prep — the human infrastructure for yield. Cannot be 30% of someone\'s job.', pctLo:25, pctHi:35, school:.2, gen:.7, map:.1, anchor:true, absorbed:false },
+  { id:'leadconv', grp:'Capacity & staff', name:'Lead conversion — calls, texts, emails to leads', sub:'Direct outreach to move leads toward application. 24–48 hr response benchmark.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE makes the calls, manages the pipeline.' },
+  { id:'postoffer', grp:'Yield & onboarding', name:'Post-app, offer & registration nurture', sub:'Drip sequences + direct outreach post-application, post-offer, through registration completion.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE owns the back half of the funnel.' },
+  { id:'postaccept', grp:'Yield & onboarding', name:'Post-acceptance nurture through FWoS', sub:'Calls, texts, events from registration through Day 1. Plan for 15%+ no-show in Year 1.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE manages summer melt prevention and onboarding.' },
+  { id:'automations', grp:'Yield & onboarding', name:'Nurture automations & tools', sub:'Email/text platform subscriptions, drip campaign setup, Zapier/MailChimp flows. FTE executes; tools are a separate spend line.', pctLo:2, pctHi:4, school:.1, gen:.3, map:.6, anchor:false, absorbed:false },
+];
+
+const GROUPS = ['Planning & infrastructure','Top of funnel','Conversion & field','Capacity & staff','Yield & onboarding'];
+
+const fmt  = n => '$' + Math.round(n).toLocaleString();
+const fmtK = n => n === 0 ? '—' : '$' + Math.round(n / 1000) + 'k';
+const dash = '<span class="dash">—</span>';
+
+// ── URL state ─────────────────────────────────────────────────────────────────
+function getParams() {
+  const p = new URLSearchParams(location.search);
+  return {
+    students: +p.get('s')  || 100,
+    scenario: +p.get('sc') || 1250,
+    eirgrant: +p.get('eg') || 250000,
+    eirpct:   +p.get('ep') || 20,
+    map:      +p.get('m')  || 40000,
+    sidebar:  p.get('sb') !== '0',
+  };
+}
+function pushParams(v) {
+  const p = new URLSearchParams();
+  p.set('s', v.students); p.set('sc', v.scenario);
+  p.set('eg', v.eirgrant); p.set('ep', v.eirpct);
+  p.set('m', v.map); p.set('sb', v.sidebar ? '1' : '0');
+  history.replaceState(null, '', '?' + p.toString());
+}
+function initInputs() {
+  const v = getParams();
+  document.getElementById('students').value = v.students;
+  document.getElementById('scenario').value = v.scenario;
+  document.getElementById('eirgrant').value = v.eirgrant;
+  document.getElementById('eirpct').value   = v.eirpct;
+  document.getElementById('map').value      = v.map;
+  if (!v.sidebar) {
+    document.getElementById('outer-layout').classList.add('sidebar-hidden');
+    document.getElementById('sidebar-col').style.display = 'none';
+    document.getElementById('sidebar-toggle-btn').classList.remove('active');
+  }
+}
+
+// ── Sidebar toggle ────────────────────────────────────────────────────────────
+let sidebarOpen = true;
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  const layout = document.getElementById('outer-layout');
+  const col = document.getElementById('sidebar-col');
+  const btn = document.getElementById('sidebar-toggle-btn');
+  if (sidebarOpen) {
+    layout.classList.remove('sidebar-hidden');
+    col.style.display = '';
+    btn.classList.add('active');
+  } else {
+    layout.classList.add('sidebar-hidden');
+    col.style.display = 'none';
+    btn.classList.remove('active');
+  }
+  const v = getParams();
+  v.sidebar = sidebarOpen;
+  pushParams(v);
+}
+
+// ── Accordion ─────────────────────────────────────────────────────────────────
+function toggleSection(btn) {
+  const content = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  content.classList.toggle('open', !isOpen);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const students = +document.getElementById('students').value;
+  const perStu   = +document.getElementById('scenario').value;
+  const eirGrant = +document.getElementById('eirgrant').value;
+  const eirPct   = +document.getElementById('eirpct').value;
+  const mapGrant = +document.getElementById('map').value;
+
+  const total     = students * perStu;
+  const eirSRE    = eirGrant * eirPct / 100;
+  const csgfTot   = eirSRE + mapGrant;
+  const schoolOwn = Math.max(total - csgfTot, 0);
+  const csgfPct   = Math.min(Math.round(csgfTot / total * 100), 100);
+  const eirRemain = eirGrant - eirSRE;
+
+  document.getElementById('students-out').textContent = students;
+  document.getElementById('eirpct-out').textContent   = fmtK(eirSRE);
+  document.getElementById('eirpct-pct').textContent   = eirPct + '% of ' + fmtK(eirGrant) + ' general grant';
+
+  const v = getParams();
+  v.students = students; v.scenario = perStu; v.eirgrant = eirGrant; v.eirpct = eirPct; v.map = mapGrant;
+  pushParams(v);
+
+  let covClass = 'ok';
+  if (csgfPct < 50) covClass = 'crit';
+  else if (csgfPct < 70) covClass = 'warn';
+
+  const fteMid   = total * (25 + 35) / 2 / 100;
+  const cplLeads = students * 5;
+
+  document.getElementById('summary-row').innerHTML = `
+    <div class="scard"><div class="scard-label">Total SRE budget</div><div class="scard-value">${fmt(total)}</div><div class="scard-sub">${students} students × ${fmt(perStu)}</div></div>
+    <div class="scard"><div class="scard-label">School own funds</div><div class="scard-value">${fmt(schoolOwn)}</div><div class="scard-sub">After CSGF grants</div></div>
+    <div class="scard"><div class="scard-label">EIR gen. grant → SRE</div><div class="scard-value">${fmtK(eirSRE)}</div><div class="scard-sub">${eirPct}% of ${fmtK(eirGrant)}</div></div>
+    <div class="scard"><div class="scard-label">MAP / enrollment grant</div><div class="scard-value">${mapGrant > 0 ? fmtK(mapGrant) : '—'}</div><div class="scard-sub">${mapGrant > 0 ? 'Paid media + consulting' : 'Not selected'}</div></div>
+    <div class="scard"><div class="scard-label">CSGF coverage</div><div class="scard-value ${covClass}">${csgfPct}%</div><div class="scard-sub">${fmt(csgfTot)} of ${fmt(total)}</div></div>
+  `;
+
+  const activeCats = CATS.filter(c => !c.absorbed);
+  const maxMid = Math.max(...activeCats.map(c => total * (c.pctLo + c.pctHi) / 2 / 100));
+
+  let tbody = '';
+  GROUPS.forEach(grp => {
+    const cats = CATS.filter(c => c.grp === grp);
+    tbody += `<tr class="grp-row"><td colspan="6">${grp}</td></tr>`;
+    cats.forEach(c => {
+      if (c.absorbed) {
+        tbody += `<tr class="absorbed-row">
+          <td><div class="cat-name">${c.name}</div><div class="cat-sub absorbed">↳ ${c.absorbedLabel}</div></td>
+          <td colspan="5" class="absorbed-cell">No separate budget line — labor cost captured in FTE line</td>
+        </tr>`;
+        return;
+      }
+      const lo = total * c.pctLo / 100, hi = total * c.pctHi / 100, mid = (lo + hi) / 2;
+      const schoolAmt = mid * c.school;
+      const genAmt    = eirSRE > 0   ? mid * c.gen  : 0;
+      const mapAmt    = mapGrant > 0 ? mid * c.map  : 0;
+      const scale = maxMid > 0 ? mid / maxMid : 0, B = 78;
+      const sw = Math.round(c.school * B * scale);
+      const gw = eirSRE > 0   ? Math.round(c.gen * B * scale)  : 0;
+      const mw = mapGrant > 0 ? Math.round(c.map * B * scale)  : 0;
+      const uw = Math.max(Math.round(B * scale) - sw - gw - mw, 0);
+      const anchorBadge = c.anchor    ? '<span class="badge badge-anchor">anchor</span>' : '';
+      const mapBadge    = c.mapPrimary ? '<span class="badge badge-map">MAP primary</span>' : '';
+      tbody += `<tr class="${c.anchor ? 'anchor-row' : ''}">
+        <td><div class="cat-name ${c.anchor ? 'anchor' : ''}">${c.name}${anchorBadge}${mapBadge}</div><div class="cat-sub">${c.sub}</div></td>
+        <td class="mono">${c.pctLo > 0 ? fmtK(lo) + '–' + fmtK(hi) : dash}</td>
+        <td class="mono c-school">${schoolAmt > 50 ? fmtK(schoolAmt) : dash}</td>
+        <td class="mono c-gen">${genAmt > 50    ? fmtK(genAmt)    : dash}</td>
+        <td class="mono c-map">${mapAmt > 50    ? fmtK(mapAmt)    : dash}</td>
+        <td><div class="bar-outer"><div class="bar-seg" style="width:${sw}px;background:#1E6FA8;"></div><div class="bar-seg" style="width:${gw}px;background:#0E7C6B;"></div><div class="bar-seg" style="width:${mw}px;background:#C47D14;"></div><div class="bar-seg" style="width:${uw}px;background:#DDE1E8;"></div></div></td>
+      </tr>`;
+    });
+  });
+  document.getElementById('table-body').innerHTML = tbody;
+
+  const fteMos = Math.round(fteMid / 5000);
+  const cplBudget = Math.round(cplLeads * 40);
+  document.getElementById('footnote').innerHTML = `
+    <p><strong>FTE as the yield engine.</strong> Lead conversion, post-offer nurture, offer management, registration follow-through, and summer onboarding are all FTE labor — no separate line items. At this scenario, the FTE line is ${fmtK(fteMid)}, roughly ${fteMos} months of a $5k/month enrollment hire. Underfunding this line doesn't just reduce capacity; it leaves the entire back half of the funnel unworked.</p>
+    <p><strong>EIR general grant as pre-revenue bridge.</strong> Before Day 1, there is no school revenue. The general grant (${fmtK(eirSRE)} earmarked for SRE, ${eirPct}% of ${fmtK(eirGrant)}) is the primary enabler for FTE salaries, field/event costs, and infrastructure. The remaining ${fmtK(eirRemain)} covers other start-up needs. At 10% (~$25k), SRE depends heavily on MAP and ED time. At 20–25% (~$50–63k), a dedicated enrollment FTE for 6–9 months becomes fundable. At 30%+ (~$75k+), both FTE and meaningful field/event spend are covered.</p>
+    <p><strong>MAP's lane.</strong> Paid media lead gen, awareness campaigns, digital infrastructure, and Mariposa consulting. Not FTE salaries, canvassing, or event execution. The overlap zone is automation tooling and collateral setup.</p>
+    <p><strong>Benchmarks.</strong> ~$40 CPL target → ${students} enrolled students requires ~${cplLeads.toLocaleString()} leads → implied paid media budget of ${fmt(cplBudget)}. Sector median offer-to-enrolled: 42%; Year 1 new school: plan for ~33%. Build pipeline volume accordingly.</p>
+  `;
+}
+
+function shareURL() {
+  navigator.clipboard.writeText(location.href).then(() => {
+    const t = document.getElementById('share-toast');
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 2200);
+  });
+}
+
+['students','scenario','eirgrant','eirpct','map'].forEach(id => {
+  document.getElementById(id).addEventListener('input',  render);
+  document.getElementById(id).addEventListener('change', render);
+});
+
+const _init = getParams();
+sidebarOpen = _init.sidebar;
+initInputs();
+render();
+</script>
+</body>
+</html>
