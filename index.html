@@ -258,6 +258,29 @@
     padding: 6px 12px;
     border-bottom: 1px solid var(--navy-light) !important;
   }
+  .grp-subtotal-row td {
+    background: var(--navy-mid);
+    padding: 5px 12px;
+    border-bottom: 2px solid var(--navy-light) !important;
+  }
+  .grp-subtotal-label {
+    font-size: .68rem; font-weight: 600;
+    color: rgba(255,255,255,.5);
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  .grp-subtotal-val {
+    font-family: var(--font-mono);
+    font-size: .78rem; font-weight: 600;
+    color: rgba(255,255,255,.85);
+    text-align: right;
+  }
+  .grp-subtotal-bar { text-align: right; }
+  .grp-sub-bar-outer {
+    width: 80px; height: 6px;
+    background: rgba(255,255,255,.1);
+    border-radius: 3px; overflow: hidden;
+    display: flex; gap: 1px; margin-left: auto;
+  }
   td {
     padding: 8px 12px; vertical-align: middle;
     text-align: right; color: var(--gray-600); font-size: .82rem;
@@ -840,7 +863,7 @@ function getParams() {
     eirpct:   +p.get('ep') || 20,
     map:      +p.get('m')  || 40000,
     sidebar:  p.get('sb') !== '0',
-    ownership: p.get('ow') || 'fte',
+    ownership: p.get('ow') || 'enrollment-hire',
   };
 }
 function pushParams(v) {
@@ -848,7 +871,7 @@ function pushParams(v) {
   p.set('s', v.students); p.set('sc', v.scenario);
   p.set('eg', v.eirgrant); p.set('ep', v.eirpct);
   p.set('m', v.map); p.set('sb', v.sidebar ? '1' : '0');
-  p.set('ow', v.ownership || 'fte');
+  p.set('ow', v.ownership || 'enrollment-hire');
   history.replaceState(null, '', '?' + p.toString());
 }
 function initInputs() {
@@ -989,7 +1012,7 @@ function render() {
   if (csgfPct < 50) covClass = 'crit';
   else if (csgfPct < 70) covClass = 'warn';
 
-  const fteCfg   = OWN_CONFIG[ownershipMode];
+  const fteCfg   = OWN_CONFIG[ownershipMode] || OWN_CONFIG['enrollment-hire'];
   const fteMid   = total * (fteCfg.ftePctLo + fteCfg.ftePctHi) / 2 / 100;
   const cplLeads = students * 5;
 
@@ -1013,6 +1036,11 @@ function render() {
   GROUPS.forEach(grp => {
     const cats = CATS.filter(c => c.grp === grp);
     tbody += `<tr class="grp-row"><td colspan="6">${grp}</td></tr>`;
+
+    // Accumulators for group subtotal
+    let grpLoSum = 0, grpHiSum = 0;
+    let grpSchoolSum = 0, grpGenSum = 0, grpMapSum = 0;
+
     cats.forEach(c => {
       if (c.absorbed) {
         tbody += `<tr class="absorbed-row">
@@ -1022,7 +1050,6 @@ function render() {
         return;
       }
       const isOwnerFTE = c.id === 'fte';
-      // Override pct range for FTE row based on ownership mode
       const pctLo = isOwnerFTE ? fteCfg.ftePctLo : c.pctLo;
       const pctHi = isOwnerFTE ? fteCfg.ftePctHi : c.pctHi;
       const lo  = c.fixedRange ? 0           : total * pctLo / 100;
@@ -1047,6 +1074,13 @@ function render() {
         <td><div class="bar-outer"><div class="bar-seg" style="width:${sw}px;background:#1E6FA8;"></div><div class="bar-seg" style="width:${gw}px;background:#0E7C6B;"></div><div class="bar-seg" style="width:${mw}px;background:#C47D14;"></div><div class="bar-seg" style="width:${uw}px;background:#DDE1E8;"></div></div></td>
       </tr>`;
 
+      // Accumulate for subtotal
+      grpLoSum  += lo;
+      grpHiSum  += hi;
+      grpSchoolSum += schoolAmt;
+      grpGenSum    += genAmt;
+      grpMapSum    += mapAmt;
+
       // Inject FTE benchmark expansion row
       if (isOwnerFTE) {
         const chipsHtml = fteCfg.chips.map(ch => {
@@ -1061,9 +1095,6 @@ function render() {
             ${noteHtml}
           </div>`;
         }).join('');
-        const totalNote = fteCfg.label === 'Founder-led'
-          ? 'Total: 80–100% FTE equivalent — founder absorbs all SRE capacity'
-          : 'Total: 80–100% FTE equivalent across both roles — the minimum needed to run a comprehensive strategy';
         tbody += `<tr class="fte-bench-row">
           <td colspan="6">
             <div class="fte-bench-inner">
@@ -1077,6 +1108,34 @@ function render() {
         </tr>`;
       }
     });
+
+    // Group subtotal row
+    const grpMidSum = (grpLoSum + grpHiSum) / 2;
+    const grpScale  = maxMid > 0 ? Math.min(grpMidSum / maxMid, 1) : 0;
+    const B2 = 78;
+    const totalMid = grpSchoolSum + grpGenSum + grpMapSum;
+    const gsw = totalMid > 0 ? Math.round(grpSchoolSum / totalMid * B2 * grpScale) : 0;
+    const ggw = totalMid > 0 ? Math.round(grpGenSum    / totalMid * B2 * grpScale) : 0;
+    const gmw = totalMid > 0 ? Math.round(grpMapSum    / totalMid * B2 * grpScale) : 0;
+    const guw = Math.max(Math.round(B2 * grpScale) - gsw - ggw - gmw, 0);
+    const rangeStr = grpLoSum === 0 && grpHiSum > 0
+      ? '≤ ' + fmtK(grpHiSum)
+      : grpHiSum > 0
+        ? fmtK(grpLoSum) + '–' + fmtK(grpHiSum)
+        : '—';
+    tbody += `<tr class="grp-subtotal-row">
+      <td><span class="grp-subtotal-label">${grp} — subtotal</span></td>
+      <td class="grp-subtotal-val">${rangeStr}</td>
+      <td class="grp-subtotal-val">${grpSchoolSum > 50 ? fmtK(grpSchoolSum) : '—'}</td>
+      <td class="grp-subtotal-val">${grpGenSum    > 50 ? fmtK(grpGenSum)    : '—'}</td>
+      <td class="grp-subtotal-val">${grpMapSum    > 50 ? fmtK(grpMapSum)    : '—'}</td>
+      <td class="grp-subtotal-bar"><div class="grp-sub-bar-outer">
+        <div class="bar-seg" style="width:${gsw}px;background:rgba(100,160,220,.7);"></div>
+        <div class="bar-seg" style="width:${ggw}px;background:rgba(80,180,140,.7);"></div>
+        <div class="bar-seg" style="width:${gmw}px;background:rgba(220,160,60,.7);"></div>
+        <div class="bar-seg" style="width:${guw}px;background:rgba(255,255,255,.1);"></div>
+      </div></td>
+    </tr>`;
   });
   document.getElementById('table-body').innerHTML = tbody;
 
