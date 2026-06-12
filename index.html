@@ -3,635 +3,412 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Year 1 SRE Budget Model — Charter School Growth Fund</title>
+<title>New School Enrollment Toolkit — Charter School Growth Fund</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --navy:       #0D2B45;
-    --navy-mid:   #1A3F5C;
-    --navy-light: #2A5478;
-    --blue:       #1E6FA8;
-    --blue-mid:   #2E87C8;
-    --blue-light: #D6EBF8;
-    --blue-pale:  #EEF6FC;
-    --teal:       #0E7C6B;
-    --teal-light: #D4F0EB;
-    --amber:      #C47D14;
-    --amber-light:#FDF0D8;
-    --red:        #A32D2D;
-    --red-light:  #FAEAEA;
-    --green:      #0F6E56;
-    --green-light:#E1F5EE;
-    --gray-50:    #F7F8FA;
-    --gray-100:   #EFF1F4;
-    --gray-200:   #DDE1E8;
-    --gray-400:   #8E97A6;
-    --gray-600:   #4A5568;
-    --gray-800:   #1F2937;
-    --white:      #FFFFFF;
-    --font-sans:  'DM Sans', sans-serif;
-    --font-mono:  'DM Mono', monospace;
-    --radius-sm:  4px;
-    --radius-md:  8px;
-    --radius-lg:  12px;
-    --shadow-sm:  0 1px 3px rgba(13,43,69,.08), 0 1px 2px rgba(13,43,69,.05);
-    --shadow-md:  0 4px 12px rgba(13,43,69,.10), 0 2px 4px rgba(13,43,69,.06);
-  }
-
-  html { font-size: 15px; }
-  body {
-    font-family: var(--font-sans);
-    background: var(--gray-50);
-    color: var(--gray-800);
-    line-height: 1.6;
-    min-height: 100vh;
-  }
-
-  /* ── Header ── */
-  .site-header {
-    background: var(--navy);
-    border-bottom: 3px solid var(--blue);
-    padding: 0 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 56px;
-    gap: 1rem;
-  }
-  .header-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .logo-mark {
-    width: 32px; height: 32px;
-    background: var(--blue);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .logo-mark svg { width: 18px; height: 18px; fill: white; }
-  .header-title {
-    font-size: .8rem; font-weight: 500;
-    color: rgba(255,255,255,.7);
-    letter-spacing: .04em; text-transform: uppercase;
-  }
-  .header-title strong {
-    display: block; color: white;
-    font-size: .95rem; font-weight: 600;
-    letter-spacing: 0; text-transform: none;
-  }
-  .header-actions { display: flex; align-items: center; gap: 8px; }
-  .hdr-btn {
-    display: flex; align-items: center; gap: 6px;
-    background: rgba(255,255,255,.1);
-    border: 1px solid rgba(255,255,255,.2);
-    color: white; font-family: var(--font-sans);
-    font-size: .8rem; font-weight: 500;
-    padding: 6px 14px;
-    border-radius: var(--radius-md);
-    cursor: pointer; transition: background .15s; white-space: nowrap;
-  }
-  .hdr-btn:hover { background: rgba(255,255,255,.18); }
-  .hdr-btn.active { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.4); }
-  .hdr-btn svg { width: 14px; height: 14px; }
-  .share-toast {
-    position: fixed; top: 70px; right: 2rem;
-    background: var(--navy); color: white;
-    font-size: .8rem; padding: 8px 14px;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    opacity: 0; transform: translateY(-6px);
-    transition: opacity .2s, transform .2s;
-    pointer-events: none; z-index: 200;
-  }
-  .share-toast.visible { opacity: 1; transform: translateY(0); }
-
-  /* ── Outer page ── */
-  .page { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-
-  /* Left col (controls) + centre col (model) + right col (sidebar) */
-  .outer-layout {
-    display: grid;
-    grid-template-columns: 260px 1fr 300px;
-    gap: 1.5rem;
-    align-items: start;
-  }
-  .outer-layout.sidebar-hidden {
-    grid-template-columns: 260px 1fr;
-  }
-
-  @media (max-width: 1080px) {
-    .outer-layout { grid-template-columns: 240px 1fr; }
-    .outer-layout.sidebar-hidden { grid-template-columns: 240px 1fr; }
-    .sidebar-col { display: none !important; }
-  }
-  @media (max-width: 700px) {
-    .outer-layout, .outer-layout.sidebar-hidden { grid-template-columns: 1fr; }
-    .page { padding: 1rem; }
-  }
-
-  /* ── Controls panel ── */
-  .controls-panel {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    position: sticky; top: 72px;
-  }
-  .panel-header { background: var(--navy); padding: .75rem 1.25rem; }
-  .panel-header h2 {
-    font-size: .75rem; font-weight: 600;
-    color: rgba(255,255,255,.7);
-    text-transform: uppercase; letter-spacing: .07em;
-  }
-  .panel-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; }
-  .field-group { display: flex; flex-direction: column; gap: 6px; }
-  .field-label {
-    font-size: .72rem; font-weight: 600;
-    color: var(--gray-600);
-    text-transform: uppercase; letter-spacing: .06em;
-  }
-  .field-sublabel { font-size: .7rem; color: var(--gray-400); margin-top: -4px; }
-  .slider-row { display: flex; align-items: center; gap: 10px; }
-  input[type="range"] {
-    flex: 1; height: 4px;
-    -webkit-appearance: none; appearance: none;
-    background: var(--gray-200); border-radius: 2px;
-    outline: none; cursor: pointer;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px; height: 16px;
-    background: var(--blue); border-radius: 50%;
-    box-shadow: 0 0 0 3px rgba(30,111,168,.15);
-  }
-  input[type="range"]::-moz-range-thumb {
-    width: 16px; height: 16px;
-    background: var(--blue); border: none; border-radius: 50%;
-  }
-  .slider-val {
-    font-family: var(--font-mono); font-size: .8rem;
-    font-weight: 500; color: var(--navy);
-    min-width: 52px; text-align: right;
-  }
-  select {
-    width: 100%; padding: 7px 10px;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-sans); font-size: .85rem;
-    color: var(--gray-800); background: var(--white);
-    cursor: pointer; outline: none;
-  }
-  select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(30,111,168,.12); }
-  .divider { height: 1px; background: var(--gray-100); margin: 0 -.25rem; }
-  .panel-note { font-size: .72rem; color: var(--gray-400); line-height: 1.5; padding-top: .25rem; }
-
-  /* ── Summary cards ── */
-  .summary-row {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px; margin-bottom: 1.5rem;
-  }
-  @media (max-width: 700px) { .summary-row { grid-template-columns: repeat(2,1fr); } }
-  .scard {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-md);
-    padding: .9rem 1rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .scard-label {
-    font-size: .68rem; font-weight: 600;
-    color: var(--gray-400);
-    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
-  }
-  .scard-value { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 500; color: var(--navy); }
-  .scard-value.ok   { color: var(--teal); }
-  .scard-value.warn { color: var(--amber); }
-  .scard-value.crit { color: var(--red); }
-  .scard-sub { font-size: .68rem; color: var(--gray-400); margin-top: 2px; }
-
-  /* ── Legend ── */
-  .legend {
-    display: flex; gap: 1.25rem;
-    flex-wrap: wrap; margin-bottom: 1rem;
-    font-size: .75rem; color: var(--gray-600); align-items: center;
-  }
-  .leg-item { display: flex; align-items: center; gap: 5px; }
-  .leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-
-  /* ── Table ── */
-  .table-wrap {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-  thead tr { background: var(--navy); }
-  thead th {
-    padding: 10px 12px;
-    font-size: .68rem; font-weight: 600;
-    color: rgba(255,255,255,.65);
-    text-transform: uppercase; letter-spacing: .07em;
-    text-align: right; white-space: nowrap;
-  }
-  thead th:first-child { text-align: left; width: 34%; }
-  thead th.th-bar { width: 90px; }
-  tbody tr { border-bottom: 1px solid var(--gray-100); }
-  tbody tr:last-child { border-bottom: none; }
-  .grp-row td {
-    background: var(--navy);
-    color: rgba(255,255,255,.55);
-    font-size: .67rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .08em;
-    padding: 6px 12px;
-    border-bottom: 1px solid var(--navy-light) !important;
-  }
-  .grp-subtotal-row td {
-    background: var(--navy-mid);
-    padding: 5px 12px;
-    border-bottom: 2px solid var(--navy-light) !important;
-  }
-  .grp-subtotal-label {
-    font-size: .68rem; font-weight: 600;
-    color: rgba(255,255,255,.5);
-    text-transform: uppercase; letter-spacing: .06em;
-  }
-  .grp-subtotal-val {
-    font-family: var(--font-mono);
-    font-size: .78rem; font-weight: 600;
-    color: rgba(255,255,255,.85);
-    text-align: right;
-  }
-  .grp-subtotal-bar { text-align: right; }
-  .grp-sub-bar-outer {
-    width: 80px; height: 6px;
-    background: rgba(255,255,255,.1);
-    border-radius: 3px; overflow: hidden;
-    display: flex; gap: 1px; margin-left: auto;
-  }
-  td {
-    padding: 8px 12px; vertical-align: middle;
-    text-align: right; color: var(--gray-600); font-size: .82rem;
-  }
-  td:first-child { text-align: left; }
-  .cat-name { font-size: .84rem; font-weight: 500; color: var(--gray-800); line-height: 1.3; }
-  .cat-name.anchor { color: var(--navy); font-weight: 600; }
-  .cat-sub { font-size: .71rem; color: var(--gray-400); line-height: 1.4; margin-top: 2px; }
-  .cat-sub.absorbed { color: var(--teal); font-style: italic; }
-  .anchor-row { background: var(--blue-pale); }
-  .absorbed-row { background: var(--gray-50); }
-  .absorbed-row .cat-name { color: var(--gray-400); font-weight: 400; }
-  .absorbed-cell { font-size: .71rem; color: var(--gray-400); font-style: italic; text-align: left; }
-  .mono { font-family: var(--font-mono); font-size: .78rem; }
-  .c-school { color: var(--blue); }
-  .c-gen    { color: var(--teal); }
-  .c-map    { color: var(--amber); }
-  .dash     { color: var(--gray-200); }
-  .badge {
-    display: inline-block; font-size: .62rem; font-weight: 600;
-    padding: 1px 6px; border-radius: 3px; margin-left: 5px;
-    vertical-align: middle; text-transform: uppercase; letter-spacing: .04em;
-  }
-  .badge-anchor { background: var(--blue-light); color: var(--blue); }
-  .badge-map    { background: var(--amber-light); color: var(--amber); }
-  .bar-outer {
-    width: 80px; height: 10px;
-    background: var(--gray-100); border-radius: 3px;
-    overflow: hidden; display: flex; gap: 1px; margin-left: auto;
-  }
-  .bar-seg { height: 100%; transition: width .25s ease; }
-
-  /* ── Footnote ── */
-  .footnote-box {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-left: 3px solid var(--blue);
-    border-radius: var(--radius-md);
-    padding: 1rem 1.25rem;
-    margin-top: 1.5rem;
-    font-size: .78rem; color: var(--gray-600);
-    line-height: 1.65; box-shadow: var(--shadow-sm);
-  }
-  .footnote-box strong { color: var(--navy); }
-  .footnote-box p + p { margin-top: .6rem; }
-
-  /* ── Sidebar ── */
-  .sidebar-col {
-    position: sticky;
-    top: 72px;
-    max-height: calc(100vh - 90px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gray-200) transparent;
-  }
-  .sidebar-col::-webkit-scrollbar { width: 4px; }
-  .sidebar-col::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
-
-  .sidebar {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-  }
-
-  .sb-header {
-    background: var(--navy);
-    padding: .75rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .sb-header-text { display: flex; align-items: center; gap: 8px; }
-  .sb-header-text svg { width: 14px; height: 14px; flex-shrink: 0; }
-  .sb-title {
-    font-size: .75rem; font-weight: 600;
-    color: rgba(255,255,255,.75);
-    text-transform: uppercase; letter-spacing: .07em;
-  }
-  .sb-title strong { display: block; color: white; font-size: .82rem; font-weight: 600; text-transform: none; letter-spacing: 0; }
-
-  .sb-body { padding: 0; }
-
-  /* Accordion sections */
-  .sb-section { border-bottom: 1px solid var(--gray-100); }
-  .sb-section:last-child { border-bottom: none; }
-  .sb-section-btn {
-    width: 100%; text-align: left;
-    padding: .7rem 1rem;
-    background: none; border: none;
-    font-family: var(--font-sans);
-    font-size: .78rem; font-weight: 600;
-    color: var(--navy);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 8px;
-    transition: background .12s;
-  }
-  .sb-section-btn:hover { background: var(--gray-50); }
-  .sb-section-btn .chevron {
-    width: 14px; height: 14px;
-    color: var(--gray-400); flex-shrink: 0;
-    transition: transform .2s;
-  }
-  .sb-section-btn.open .chevron { transform: rotate(180deg); }
-  .sb-section-content {
-    padding: 0 1rem .9rem;
-    font-size: .77rem;
-    color: var(--gray-600);
-    line-height: 1.6;
-    display: none;
-  }
-  .sb-section-content.open { display: block; }
-  .sb-section-content p + p { margin-top: .5rem; }
-  .sb-section-content strong { color: var(--navy); font-weight: 600; }
-
-  /* Callout within sidebar */
-  .sb-callout {
-    background: var(--blue-pale);
-    border-left: 3px solid var(--blue);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    padding: .6rem .75rem;
-    margin: .6rem 0;
-    font-size: .75rem;
-    color: var(--navy-mid);
-    line-height: 1.5;
-  }
-  .sb-callout strong { color: var(--navy); }
-
-  .sb-callout.amber {
-    background: var(--amber-light);
-    border-left-color: var(--amber);
-    color: #5a3a08;
-  }
-  .sb-callout.teal {
-    background: var(--teal-light);
-    border-left-color: var(--teal);
-    color: #0a3d35;
-  }
-
-  /* Mini funding stream table inside sidebar */
-  .sb-stream-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: .73rem; }
-  .sb-stream-table th {
-    font-size: .65rem; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .05em; color: var(--gray-400);
-    padding: 3px 6px; text-align: left;
-    border-bottom: 1px solid var(--gray-100);
-  }
-  .sb-stream-table td { padding: 4px 6px; color: var(--gray-600); vertical-align: top; }
-  .sb-stream-table tr:nth-child(even) td { background: var(--gray-50); }
-  .stream-dot {
-    display: inline-block; width: 8px; height: 8px;
-    border-radius: 2px; margin-right: 4px; vertical-align: middle;
-  }
-
-  /* Key questions list */
-  .sb-q-list { list-style: none; padding: 0; margin: .4rem 0 0; }
-  .sb-q-list li {
-    padding: .45rem .5rem .45rem .75rem;
-    border-left: 2px solid var(--gray-200);
-    margin-bottom: .35rem;
-    font-size: .75rem; color: var(--gray-600); line-height: 1.5;
-  }
-  .sb-q-list li strong { color: var(--navy); display: block; font-size: .73rem; margin-bottom: 1px; }
-
-  /* Threshold table */
-  .sb-thresh-table { width: 100%; border-collapse: collapse; margin: .5rem 0; font-size: .73rem; }
-  .sb-thresh-table th {
-    font-size: .65rem; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .05em; color: var(--gray-400);
-    padding: 3px 6px; text-align: left;
-    border-bottom: 1px solid var(--gray-100);
-  }
-  .sb-thresh-table td { padding: 5px 6px; color: var(--gray-600); vertical-align: top; border-bottom: 1px solid var(--gray-100); }
-  .sb-thresh-table tr:last-child td { border-bottom: none; }
-  .pct-badge {
-    display: inline-block;
-    font-family: var(--font-mono);
-    font-size: .7rem; font-weight: 500;
-    padding: 1px 6px; border-radius: 3px;
-    background: var(--blue-light); color: var(--blue);
-  }
-  .pct-badge.mid { background: var(--teal-light); color: var(--teal); }
-  .pct-badge.hi  { background: var(--green-light); color: var(--green); }
-
-  /* ── Ownership toggle ── */
-  .own-toggle { display: flex; flex-direction: column; gap: 5px; }
-  .own-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
-  .own-btn {
-    flex: 1; min-width: 0;
-    padding: 5px 6px;
-    font-family: var(--font-sans); font-size: .72rem; font-weight: 500;
-    color: var(--gray-600);
-    background: var(--gray-50);
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-sm);
-    cursor: pointer; text-align: center;
-    transition: background .12s, border-color .12s, color .12s;
-    line-height: 1.3;
-  }
-  .own-btn:hover { background: var(--blue-pale); border-color: var(--blue-mid); }
-  .own-btn.selected {
-    background: var(--navy);
-    border-color: var(--navy);
-    color: white;
-    font-weight: 600;
-  }
-  .own-hint {
-    font-size: .68rem; color: var(--gray-400);
-    line-height: 1.4; padding-top: 2px;
-  }
-
-  /* ── FTE benchmark row (injected below FTE table row) ── */
-  .fte-bench-row td { padding: 0 12px 10px; background: var(--blue-pale); }
-  .fte-bench-inner {
-    border: 1px solid var(--blue-light);
-    border-radius: var(--radius-sm);
-    padding: 8px 10px;
-    font-size: .73rem;
-  }
-  .fte-bench-title {
-    font-size: .68rem; font-weight: 600;
-    color: var(--blue); text-transform: uppercase;
-    letter-spacing: .05em; margin-bottom: 5px;
-  }
-  .fte-bench-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-  .fte-bench-chip {
-    display: flex; align-items: center; gap: 5px;
-    background: white;
-    border: 1px solid var(--gray-200);
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: .72rem;
-  }
-  .fte-bench-chip.active {
-    border-color: var(--blue);
-    background: var(--blue-light);
-  }
-  .fte-bench-chip.constant {
-    border-color: var(--gray-200);
-    background: var(--gray-50);
-    opacity: .85;
-  }
-  .fte-bench-chip .chip-role { color: var(--gray-600); }
-  .fte-bench-chip .chip-pct  { font-family: var(--font-mono); font-weight: 600; color: var(--navy); margin-left: 2px; }
-  .fte-bench-chip.active .chip-role,
-  .fte-bench-chip.active .chip-pct { color: var(--blue); }
-  .fte-bench-note { font-size: .7rem; color: var(--gray-500, #6B7280); line-height: 1.5; }
-  .fte-bench-note strong { color: var(--navy); }
-  .fte-runway {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: .68rem; font-weight: 600;
-    background: var(--teal-light); color: var(--teal);
-    padding: 2px 8px; border-radius: 3px; margin-top: 5px;
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:#0D2B45; --navy-mid:#1A3F5C; --navy-light:#2A5478;
+  --blue:#1E6FA8; --blue-mid:#2E87C8; --blue-light:#D6EBF8; --blue-pale:#EEF6FC;
+  --teal:#0E7C6B; --teal-light:#D4F0EB;
+  --amber:#C47D14; --amber-light:#FDF0D8;
+  --red:#A32D2D; --red-light:#FAEAEA;
+  --green:#0F6E56; --green-light:#E1F5EE;
+  --gray-50:#F7F8FA; --gray-100:#EFF1F4; --gray-200:#DDE1E8; --gray-400:#8E97A6;
+  --gray-600:#4A5568; --gray-800:#1F2937; --white:#FFFFFF;
+  --font-sans:'DM Sans',sans-serif; --font-mono:'DM Mono',monospace;
+  --radius-sm:4px; --radius-md:8px; --radius-lg:12px;
+  --shadow-sm:0 1px 3px rgba(13,43,69,.08),0 1px 2px rgba(13,43,69,.05);
+  --shadow-md:0 4px 12px rgba(13,43,69,.10),0 2px 4px rgba(13,43,69,.06);
+}
+html{font-size:15px}
+body{font-family:var(--font-sans);background:var(--gray-50);color:var(--gray-800);line-height:1.6;min-height:100vh}
+/* Header */
+.site-header{background:var(--navy);border-bottom:3px solid var(--blue);position:sticky;top:0;z-index:100}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:50px;padding:0 1.5rem;gap:.5rem}
+.header-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0}
+.logo-mark{width:28px;height:28px;background:var(--blue);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:16px;height:16px;fill:white}
+.header-title{font-size:.72rem;font-weight:500;color:rgba(255,255,255,.6);letter-spacing:.04em;text-transform:uppercase}
+.header-title strong{display:block;color:white;font-size:.85rem;font-weight:600;letter-spacing:0;text-transform:none}
+.hdr-actions{display:flex;align-items:center;gap:6px}
+.hdr-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:white;font-family:var(--font-sans);font-size:.75rem;font-weight:500;padding:5px 10px;border-radius:var(--radius-md);cursor:pointer;transition:background .12s;white-space:nowrap}
+.hdr-btn:hover{background:rgba(255,255,255,.15)}
+.hdr-btn svg{width:13px;height:13px}
+/* Tab bar */
+.tab-bar{background:var(--navy-mid);padding:0 1.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab-bar-inner{max-width:1400px;margin:0 auto;display:flex;gap:0}
+.tab-btn{padding:10px 16px;font-family:var(--font-sans);font-size:.78rem;font-weight:500;color:rgba(255,255,255,.5);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab-btn:hover{color:rgba(255,255,255,.75);background:rgba(255,255,255,.04)}
+.tab-btn.active{color:white;border-bottom-color:var(--blue);background:rgba(255,255,255,.06)}
+/* Page */
+.page{max-width:1400px;margin:0 auto;padding:1.5rem}
+.tab-content{display:none}
+.tab-content.active{display:block}
+/* Share toast */
+.share-toast{position:fixed;top:64px;right:2rem;background:var(--navy);color:white;font-size:.8rem;padding:8px 14px;border-radius:var(--radius-md);box-shadow:var(--shadow-md);opacity:0;transform:translateY(-6px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:200}
+.share-toast.visible{opacity:1;transform:translateY(0)}
+/* Cards */
+.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.card-header{background:var(--navy);padding:.65rem 1rem}
+.card-header h3{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em}
+.card-body{padding:1rem}
+/* Welcome */
+.welcome-hero{text-align:center;padding:2.5rem 1.5rem 2rem;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);border-radius:var(--radius-lg);margin-bottom:1.5rem;color:white}
+.welcome-hero h1{font-size:1.6rem;font-weight:600;margin-bottom:.5rem}
+.welcome-hero p{font-size:.9rem;color:rgba(255,255,255,.75);max-width:640px;margin:0 auto .75rem;line-height:1.6}
+.welcome-hero .tag{display:inline-block;font-size:.7rem;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:3px 12px;border-radius:20px;margin-bottom:1rem;letter-spacing:.04em}
+.welcome-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:800px){.welcome-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.welcome-grid{grid-template-columns:1fr}}
+.welcome-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.25rem;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column;gap:.5rem}
+.welcome-card:hover{border-color:var(--blue);box-shadow:var(--shadow-md)}
+.welcome-card .wc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.welcome-card h3{font-size:.88rem;font-weight:600;color:var(--navy)}
+.welcome-card p{font-size:.78rem;color:var(--gray-600);line-height:1.5;flex:1}
+.welcome-card .wc-link{font-size:.75rem;font-weight:600;color:var(--blue);margin-top:auto}
+.welcome-context{background:var(--white);border:1px solid var(--gray-200);border-left:3px solid var(--blue);border-radius:var(--radius-md);padding:1rem 1.25rem;font-size:.82rem;color:var(--gray-600);line-height:1.6}
+.welcome-context strong{color:var(--navy)}
+/* Arc */
+.arc-timeline{display:flex;gap:2px;margin-bottom:1.5rem;border-radius:var(--radius-lg);overflow:hidden}
+.arc-phase-bar{padding:10px 12px;cursor:pointer;transition:all .15s;position:relative;min-height:80px;display:flex;flex-direction:column;justify-content:center}
+.arc-phase-bar:hover{filter:brightness(1.08)}
+.arc-phase-bar.selected{outline:2px solid white;outline-offset:-2px;z-index:1}
+.arc-phase-bar .ph-num{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:2px}
+.arc-phase-bar .ph-name{font-size:.8rem;font-weight:600;line-height:1.2;margin-bottom:3px}
+.arc-phase-bar .ph-months{font-size:.65rem;opacity:.65}
+.arc-phase-bar .ph-focus{font-size:.68rem;opacity:.8;margin-top:4px;line-height:1.3}
+.arc-detail{margin-bottom:1rem}
+.arc-milestone{display:flex;gap:8px;padding:.5rem .75rem;background:var(--blue-pale);border-radius:var(--radius-sm);margin-bottom:.5rem;font-size:.78rem;color:var(--navy-mid);line-height:1.4}
+.arc-milestone .ms-icon{flex-shrink:0;margin-top:2px}
+.arc-lanes{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:.75rem}
+@media(max-width:900px){.arc-lanes{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.arc-lanes{grid-template-columns:1fr}}
+.arc-lane{border:1px solid var(--gray-200);border-radius:var(--radius-md);overflow:hidden;font-size:.75rem}
+.arc-lane-hd{padding:6px 10px;font-size:.68rem;font-weight:600;color:white;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.arc-lane-hd svg{width:12px;height:12px;transition:transform .2s;opacity:.6}
+.arc-lane-hd.open svg{transform:rotate(180deg)}
+.arc-lane-body{padding:0 10px 8px;display:none;font-size:.73rem;color:var(--gray-600);line-height:1.5}
+.arc-lane-body.open{display:block}
+.arc-lane-body li{margin-bottom:4px;padding-left:0}
+.arc-lane-body ul{list-style:disc;padding-left:14px}
+.arc-bench{margin-top:1rem}
+.arc-bench table{width:100%;border-collapse:collapse;font-size:.73rem}
+.arc-bench th{background:var(--navy);color:rgba(255,255,255,.7);padding:5px 8px;text-align:left;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.arc-bench td{padding:5px 8px;border-bottom:1px solid var(--gray-100);color:var(--gray-600)}
+.arc-bench tr:nth-child(even) td{background:var(--gray-50)}
+.callout-box{padding:.75rem 1rem;border-radius:var(--radius-sm);font-size:.77rem;line-height:1.5;margin:.75rem 0}
+.callout-box.blue{background:var(--blue-pale);border-left:3px solid var(--blue);color:var(--navy-mid)}
+.callout-box.amber{background:var(--amber-light);border-left:3px solid var(--amber);color:#5a3a08}
+.callout-box.teal{background:var(--teal-light);border-left:3px solid var(--teal);color:#0a3d35}
+.callout-box strong{font-weight:600}
+/* Calculator */
+.calc-layout{display:grid;grid-template-columns:300px 1fr;gap:1.5rem;align-items:start}
+@media(max-width:800px){.calc-layout{grid-template-columns:1fr}}
+.calc-panel{position:sticky;top:66px}
+.grade-row{display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.grade-row label{font-size:.75rem;font-weight:500;color:var(--gray-600)}
+.grade-row input,.grade-row select{padding:5px 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-sans);font-size:.85rem;width:100%}
+.grade-row input:focus,.grade-row select:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(30,111,168,.12)}
+.rate-row{display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center;margin-bottom:6px}
+.rate-row label{font-size:.73rem;color:var(--gray-600)}
+.rate-row input{text-align:right;padding:4px 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:.82rem;width:100%}
+.rate-row input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(30,111,168,.12)}
+.funnel-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.funnel-table thead tr{background:var(--navy)}
+.funnel-table th{padding:8px 10px;font-size:.68rem;font-weight:600;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.06em;text-align:right}
+.funnel-table th:first-child{text-align:left}
+.funnel-table td{padding:7px 10px;border-bottom:1px solid var(--gray-100);text-align:right;font-family:var(--font-mono);font-size:.82rem;color:var(--gray-600)}
+.funnel-table td:first-child{text-align:left;font-family:var(--font-sans);font-weight:500;color:var(--gray-800)}
+.funnel-table .total-row td{font-weight:600;color:var(--navy);border-top:2px solid var(--navy);background:var(--blue-pale)}
+.funnel-visual{display:flex;align-items:flex-end;gap:3px;height:160px;margin:1rem 0}
+.funnel-bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.funnel-bar{border-radius:3px 3px 0 0;width:100%;transition:height .3s}
+.funnel-bar-label{font-size:.65rem;color:var(--gray-400);text-align:center;writing-mode:horizontal-tb;line-height:1.2;height:28px;display:flex;align-items:flex-end;justify-content:center}
+.funnel-bar-val{font-family:var(--font-mono);font-size:.72rem;font-weight:500;color:var(--navy);text-align:center;margin-top:2px}
+/* Budget tab shared with existing */
+.bgt-layout{display:grid;grid-template-columns:260px 1fr 300px;gap:1.5rem;align-items:start}
+.bgt-layout.sidebar-hidden{grid-template-columns:260px 1fr}
+@media(max-width:1080px){.bgt-layout{grid-template-columns:240px 1fr}.bgt-layout.sidebar-hidden{grid-template-columns:240px 1fr}.sidebar-col{display:none!important}}
+@media(max-width:700px){.bgt-layout,.bgt-layout.sidebar-hidden{grid-template-columns:1fr}}
+.ctrl-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;position:sticky;top:66px}
+.panel-header{background:var(--navy);padding:.65rem 1rem}
+.panel-header h2{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em}
+.panel-body{padding:1rem;display:flex;flex-direction:column;gap:1rem}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:.7rem;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.05em}
+.field-sublabel{font-size:.68rem;color:var(--gray-400);margin-top:-3px}
+.slider-row{display:flex;align-items:center;gap:8px}
+input[type=range]{flex:1;height:4px;-webkit-appearance:none;appearance:none;background:var(--gray-200);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--blue);border-radius:50%;box-shadow:0 0 0 3px rgba(30,111,168,.12)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--blue);border:none;border-radius:50%}
+.slider-val{font-family:var(--font-mono);font-size:.78rem;font-weight:500;color:var(--navy);min-width:48px;text-align:right}
+select{width:100%;padding:6px 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-sans);font-size:.82rem;color:var(--gray-800);background:var(--white);cursor:pointer;outline:none}
+select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(30,111,168,.12)}
+.divider{height:1px;background:var(--gray-100);margin:0}
+.panel-note{font-size:.7rem;color:var(--gray-400);line-height:1.4}
+/* Summary cards */
+.summary-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.25rem}
+@media(max-width:700px){.summary-row{grid-template-columns:repeat(2,1fr)}}
+.scard{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:.75rem .85rem;box-shadow:var(--shadow-sm)}
+.scard-label{font-size:.65rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.scard-value{font-family:var(--font-mono);font-size:1.1rem;font-weight:500;color:var(--navy)}
+.scard-value.ok{color:var(--teal)}.scard-value.warn{color:var(--amber)}.scard-value.crit{color:var(--red)}
+.scard-sub{font-size:.65rem;color:var(--gray-400);margin-top:2px}
+/* Legend */
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem;font-size:.73rem;color:var(--gray-600);align-items:center}
+.leg-item{display:flex;align-items:center;gap:4px}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+/* Budget table */
+.table-wrap{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+table.bgt{width:100%;border-collapse:collapse;font-size:.8rem}
+table.bgt thead tr{background:var(--navy)}
+table.bgt thead th{padding:8px 10px;font-size:.65rem;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.06em;text-align:right;white-space:nowrap}
+table.bgt thead th:first-child{text-align:left;width:32%}
+table.bgt tbody tr{border-bottom:1px solid var(--gray-100)}
+table.bgt tbody tr:last-child{border-bottom:none}
+.grp-row td{background:var(--navy)!important;color:rgba(255,255,255,.5);font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;padding:5px 10px;border-bottom:1px solid var(--navy-light)!important}
+.grp-sub td{background:var(--navy-mid)!important;padding:4px 10px;border-bottom:2px solid var(--navy-light)!important}
+.grp-sub .gs-label{font-size:.65rem;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em}
+.grp-sub .gs-val{font-family:var(--font-mono);font-size:.75rem;font-weight:600;color:rgba(255,255,255,.8);text-align:right}
+table.bgt td{padding:6px 10px;vertical-align:middle;text-align:right;color:var(--gray-600);font-size:.8rem}
+table.bgt td:first-child{text-align:left}
+.cat-name{font-size:.82rem;font-weight:500;color:var(--gray-800);line-height:1.2}
+.cat-name.anchor{color:var(--navy);font-weight:600}
+.cat-sub{font-size:.69rem;color:var(--gray-400);line-height:1.35;margin-top:1px}
+.cat-sub.absorbed{color:var(--teal);font-style:italic}
+.anchor-row{background:var(--blue-pale)}
+.absorbed-row{background:var(--gray-50)}
+.absorbed-row .cat-name{color:var(--gray-400);font-weight:400}
+.absorbed-cell{font-size:.69rem;color:var(--gray-400);font-style:italic;text-align:left}
+.mono{font-family:var(--font-mono);font-size:.76rem}
+.c-school{color:var(--blue)}.c-gen{color:var(--teal)}.c-map{color:var(--amber)}
+.dash{color:var(--gray-200)}
+.badge{display:inline-block;font-size:.6rem;font-weight:600;padding:1px 5px;border-radius:3px;margin-left:4px;vertical-align:middle;text-transform:uppercase;letter-spacing:.04em}
+.badge-anchor{background:var(--blue-light);color:var(--blue)}
+.badge-map{background:var(--amber-light);color:var(--amber)}
+.bar-outer{width:72px;height:9px;background:var(--gray-100);border-radius:3px;overflow:hidden;display:flex;gap:1px;margin-left:auto}
+.bar-seg{height:100%;transition:width .2s}
+/* Ownership toggle */
+.own-toggle{display:flex;flex-direction:column;gap:4px}
+.own-btn-group{display:flex;gap:3px;flex-wrap:wrap}
+.own-btn{flex:1;min-width:0;padding:4px 5px;font-family:var(--font-sans);font-size:.69rem;font-weight:500;color:var(--gray-600);background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:all .12s;line-height:1.2}
+.own-btn:hover{background:var(--blue-pale);border-color:var(--blue-mid)}
+.own-btn.selected{background:var(--navy);border-color:var(--navy);color:white;font-weight:600}
+.own-hint{font-size:.66rem;color:var(--gray-400);line-height:1.3}
+/* FTE bench */
+.fte-bench-row td{padding:0 10px 8px!important;background:var(--blue-pale)!important}
+.fte-bench-inner{border:1px solid var(--blue-light);border-radius:var(--radius-sm);padding:7px 9px;font-size:.72rem}
+.fte-bench-title{font-size:.66rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.fte-bench-grid{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.fte-bench-chip{display:flex;align-items:center;gap:4px;background:white;border:1px solid var(--gray-200);border-radius:4px;padding:3px 7px;font-size:.7rem}
+.fte-bench-chip.active{border-color:var(--blue);background:var(--blue-light)}
+.fte-bench-chip.constant{border-color:var(--gray-200);background:var(--gray-50);opacity:.85}
+.fte-bench-chip .chip-role{color:var(--gray-600)}
+.fte-bench-chip .chip-pct{font-family:var(--font-mono);font-weight:600;color:var(--navy);margin-left:2px}
+.fte-bench-chip.active .chip-role,.fte-bench-chip.active .chip-pct{color:var(--blue)}
+.fte-bench-note{font-size:.68rem;color:#6B7280;line-height:1.4}
+.fte-bench-note strong{color:var(--navy)}
+.fte-runway{display:inline-flex;align-items:center;gap:3px;font-size:.66rem;font-weight:600;background:var(--teal-light);color:var(--teal);padding:2px 7px;border-radius:3px;margin-top:4px}
+/* Footnote */
+.footnote-box{background:var(--white);border:1px solid var(--gray-200);border-left:3px solid var(--blue);border-radius:var(--radius-md);padding:.85rem 1rem;margin-top:1.25rem;font-size:.76rem;color:var(--gray-600);line-height:1.6;box-shadow:var(--shadow-sm)}
+.footnote-box strong{color:var(--navy)}
+.footnote-box p+p{margin-top:.5rem}
+/* Sidebar */
+.sidebar-col{position:sticky;top:66px;max-height:calc(100vh - 80px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--gray-200) transparent}
+.sidebar-col::-webkit-scrollbar{width:4px}
+.sidebar-col::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px}
+.sidebar{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.sb-header{background:var(--navy);padding:.65rem 1rem;display:flex;align-items:center;gap:7px}
+.sb-header svg{width:13px;height:13px;flex-shrink:0;color:rgba(255,255,255,.5)}
+.sb-title{font-size:.72rem;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.06em}
+.sb-title strong{display:block;color:white;font-size:.8rem;font-weight:600;text-transform:none;letter-spacing:0}
+.sb-section{border-bottom:1px solid var(--gray-100)}
+.sb-section:last-child{border-bottom:none}
+.sb-section-btn{width:100%;text-align:left;padding:.6rem .85rem;background:none;border:none;font-family:var(--font-sans);font-size:.76rem;font-weight:600;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:7px;transition:background .1s}
+.sb-section-btn:hover{background:var(--gray-50)}
+.sb-section-btn .chevron{width:13px;height:13px;color:var(--gray-400);flex-shrink:0;transition:transform .2s}
+.sb-section-btn.open .chevron{transform:rotate(180deg)}
+.sb-section-content{padding:0 .85rem .75rem;font-size:.75rem;color:var(--gray-600);line-height:1.55;display:none}
+.sb-section-content.open{display:block}
+.sb-section-content p+p{margin-top:.4rem}
+.sb-section-content strong{color:var(--navy);font-weight:600}
+.sb-callout{background:var(--blue-pale);border-left:3px solid var(--blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:.5rem .65rem;margin:.5rem 0;font-size:.73rem;color:var(--navy-mid);line-height:1.45}
+.sb-callout strong{color:var(--navy)}
+.sb-callout.amber{background:var(--amber-light);border-left-color:var(--amber);color:#5a3a08}
+.sb-callout.teal{background:var(--teal-light);border-left-color:var(--teal);color:#0a3d35}
+.sb-stream-table{width:100%;border-collapse:collapse;margin:.4rem 0;font-size:.71rem}
+.sb-stream-table th{font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-400);padding:2px 5px;text-align:left;border-bottom:1px solid var(--gray-100)}
+.sb-stream-table td{padding:3px 5px;color:var(--gray-600);vertical-align:top}
+.sb-stream-table tr:nth-child(even) td{background:var(--gray-50)}
+.stream-dot{display:inline-block;width:7px;height:7px;border-radius:2px;margin-right:3px;vertical-align:middle}
+.sb-q-list{list-style:none;padding:0;margin:.3rem 0 0}
+.sb-q-list li{padding:.4rem .4rem .4rem .65rem;border-left:2px solid var(--gray-200);margin-bottom:.3rem;font-size:.73rem;color:var(--gray-600);line-height:1.4}
+.sb-q-list li strong{color:var(--navy);display:block;font-size:.71rem;margin-bottom:1px}
+.sb-thresh-table{width:100%;border-collapse:collapse;margin:.4rem 0;font-size:.71rem}
+.sb-thresh-table th{font-size:.63rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--gray-400);padding:2px 5px;text-align:left;border-bottom:1px solid var(--gray-100)}
+.sb-thresh-table td{padding:4px 5px;color:var(--gray-600);vertical-align:top;border-bottom:1px solid var(--gray-100)}
+.sb-thresh-table tr:last-child td{border-bottom:none}
+.pct-badge{display:inline-block;font-family:var(--font-mono);font-size:.68rem;font-weight:500;padding:1px 5px;border-radius:3px;background:var(--blue-light);color:var(--blue)}
+.pct-badge.mid{background:var(--teal-light);color:var(--teal)}
+.pct-badge.hi{background:var(--green-light);color:var(--green)}
+/* Resources */
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:800px){.res-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.res-grid{grid-template-columns:1fr}}
+.res-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.25rem;display:flex;flex-direction:column;gap:.5rem;box-shadow:var(--shadow-sm)}
+.res-card .rc-tag{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:3px;display:inline-block;width:fit-content}
+.res-card h3{font-size:.9rem;font-weight:600;color:var(--navy);line-height:1.25}
+.res-card .rc-when{font-size:.73rem;font-weight:600;color:var(--blue);margin-bottom:0}
+.res-card p{font-size:.77rem;color:var(--gray-600);line-height:1.5;flex:1}
+.res-card .rc-link{font-size:.73rem;font-weight:600;color:var(--blue);text-decoration:none;margin-top:auto}
+.res-card .rc-link:hover{text-decoration:underline}
+.res-intro{font-size:.85rem;color:var(--gray-600);line-height:1.6;margin-bottom:1.25rem;max-width:700px}
 </style>
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-inner">
-    <a class="header-logo" href="#">
-      <div class="logo-mark">
-        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L3 7v11h5v-5h4v5h5V7L10 2z"/></svg>
-      </div>
-      <div class="header-title">
-        Charter School Growth Fund
-        <strong>Year 1 SRE Budget Model</strong>
-      </div>
+    <a class="header-logo" href="#" onclick="switchTab('welcome');return false">
+      <div class="logo-mark"><svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2L3 7v11h5v-5h4v5h5V7L10 2z"/></svg></div>
+      <div class="header-title">Charter School Growth Fund<strong>New School Enrollment Toolkit</strong></div>
     </a>
-    <div class="header-actions">
-      <button class="hdr-btn active" id="sidebar-toggle-btn" onclick="toggleSidebar()" aria-pressed="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/>
-        </svg>
-        Context
-      </button>
-      <button class="hdr-btn" onclick="shareURL()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-        Copy link
-      </button>
+    <div class="hdr-actions">
+      <button class="hdr-btn" onclick="shareURL()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
     </div>
   </div>
+  <div class="tab-bar"><div class="tab-bar-inner">
+    <button class="tab-btn active" data-tab="welcome" onclick="switchTab('welcome')">Welcome</button>
+    <button class="tab-btn" data-tab="arc" onclick="switchTab('arc')">12-Month Arc</button>
+    <button class="tab-btn" data-tab="calc" onclick="switchTab('calc')">Target Calculator</button>
+    <button class="tab-btn" data-tab="budget" onclick="switchTab('budget')">Budget</button>
+    <button class="tab-btn" data-tab="resources" onclick="switchTab('resources')">Resources</button>
+  </div></div>
 </header>
 <div class="share-toast" id="share-toast">Link copied to clipboard</div>
 
 <main class="page">
-  <div class="outer-layout" id="outer-layout">
 
-    <!-- ── Controls ── -->
-    <aside class="controls-panel" aria-label="Model inputs">
-      <div class="panel-header"><h2>Model inputs</h2></div>
+<!-- ═══════════════════ TAB: WELCOME ═══════════════════ -->
+<div class="tab-content active" id="tab-welcome">
+  <div class="welcome-hero">
+    <div class="tag">CSGF Entrepreneur in Residence Program</div>
+    <h1>You're opening a school for the first time.</h1>
+    <p>This toolkit is designed for charter founders in Year 0 — the year before your school opens. It brings together the planning tools, enrollment benchmarks, and budget models you need to recruit your founding class of students.</p>
+    <p style="font-size:.82rem;opacity:.65">Built by CSGF's Enrollment & Marketing team for the EIR cohort.</p>
+  </div>
+
+  <div class="welcome-grid">
+    <div class="welcome-card" onclick="switchTab('arc')">
+      <div class="wc-icon" style="background:var(--blue-pale);color:var(--blue)">📅</div>
+      <h3>12-Month Arc</h3>
+      <p>A phase-by-phase guide to the enrollment work from August through Count Day — what to do, when, and why. Five phases. Five work lanes. One shared timeline.</p>
+      <span class="wc-link">Explore the arc →</span>
+    </div>
+    <div class="welcome-card" onclick="switchTab('calc')">
+      <div class="wc-icon" style="background:var(--teal-light);color:var(--teal)">🎯</div>
+      <h3>Target Calculator</h3>
+      <p>Work backward from your seat count to the number of leads, applications, and registrations you actually need — by grade. Set data-driven enrollment goals before spending your first dollar.</p>
+      <span class="wc-link">Set your targets →</span>
+    </div>
+    <div class="welcome-card" onclick="switchTab('budget')">
+      <div class="wc-icon" style="background:var(--amber-light);color:var(--amber)">💰</div>
+      <h3>Budget Model</h3>
+      <p>Model your Year 1 SRE budget across three funding streams — school funds, EIR general grant, and MAP/enrollment grant — and see how each category is covered.</p>
+      <span class="wc-link">Model your budget →</span>
+    </div>
+    <div class="welcome-card" onclick="switchTab('resources')">
+      <div class="wc-icon" style="background:var(--green-light);color:var(--green)">📚</div>
+      <h3>Resources</h3>
+      <p>Curated CSGF resources for new school leaders: benchmarking data, maturity frameworks, family research, and practitioner playbooks — with plain-language notes on what to use when.</p>
+      <span class="wc-link">Browse resources →</span>
+    </div>
+  </div>
+
+  <div class="welcome-context">
+    <strong>Who this is for.</strong> You are a charter founder — an Entrepreneur in Residence — opening a new school for the first time for a network that doesn't yet exist. You're in your Year 0 planning phase. You joined a cohort of fellow founders that comes together monthly for strategy and support, typically starting in July. You receive grant support from CSGF and may apply for additional enrollment support through the EIR Enrollment + MAP Grant.<br><br>
+    <strong>How enrollment connects to everything else.</strong> Enrollment is the primary revenue driver for your school. Every seat on Count Day translates directly to per-pupil funding. The SRE work in this toolkit isn't separate from your launch — it's the financial foundation of it. The leaders who open strong are the ones who treat August as Month 1 of a 12-month enrollment campaign, not an afterthought to academic and facilities planning.
+  </div>
+</div>
+
+<!-- ═══════════════════ TAB: ARC ═══════════════════ -->
+<div class="tab-content" id="tab-arc">
+  <div style="margin-bottom:1rem">
+    <h2 style="font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:.25rem">The 12-Month Student Recruitment & Enrollment Arc</h2>
+    <p style="font-size:.82rem;color:var(--gray-600)">Five phases from August through Count Day. Click a phase to see detail. Expand lanes for specific guidance.</p>
+  </div>
+  <div class="arc-timeline" id="arc-timeline"></div>
+  <div class="callout-box blue" style="margin-bottom:1rem">
+    <strong>Key principle:</strong> The funnel runs all year. Families apply in roughly equal proportions across all four seasons. Lead generation, conversion, and onboarding run concurrently — not sequentially. Start earlier than feels necessary. Marketing fills the funnel; relationships close it.
+  </div>
+  <div id="arc-detail"></div>
+</div>
+
+<!-- ═══════════════════ TAB: CALCULATOR ═══════════════════ -->
+<div class="tab-content" id="tab-calc">
+  <div class="calc-layout">
+    <aside class="ctrl-panel calc-panel">
+      <div class="panel-header"><h2>Funnel inputs</h2></div>
       <div class="panel-body">
         <div class="field-group">
-          <label class="field-label" for="students">Students to recruit</label>
-          <div class="slider-row">
-            <input type="range" id="students" min="50" max="300" step="10" value="100">
-            <span class="slider-val" id="students-out">100</span>
-          </div>
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="scenario">Cost per student</label>
-          <p class="field-sublabel">Total SRE spend ÷ enrolled</p>
-          <select id="scenario">
-            <option value="1000">$1,000 — lean</option>
-            <option value="1250" selected>$1,250 — midpoint</option>
-            <option value="1500">$1,500 — well-resourced</option>
-          </select>
+          <label class="field-label">School name</label>
+          <input type="text" id="calc-school" value="My School" style="padding:5px 8px;border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-family:var(--font-sans);font-size:.85rem;width:100%">
         </div>
         <div class="divider"></div>
         <div class="field-group">
-          <label class="field-label" for="eirgrant">EIR general grant</label>
-          <p class="field-sublabel">Flexible CSGF grant (typical $250k)</p>
-          <select id="eirgrant">
-            <option value="250000" selected>$250k — typical</option>
-            <option value="200000">$200k</option>
-            <option value="150000">$150k</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="eirpct">SRE allocation of general grant</label>
-          <p class="field-sublabel">% earmarked for student recruitment</p>
-          <div class="slider-row">
-            <input type="range" id="eirpct" min="5" max="40" step="5" value="20">
-            <span class="slider-val" id="eirpct-out">$50k</span>
-          </div>
-          <p class="field-sublabel" id="eirpct-pct" style="margin-top:2px;"></p>
+          <label class="field-label">Entry grades & seats</label>
+          <p class="field-sublabel">Up to 4 entry grades for Year 1</p>
+          <div id="calc-grades"></div>
         </div>
         <div class="divider"></div>
         <div class="field-group">
-          <label class="field-label" for="map">MAP / enrollment grant</label>
-          <p class="field-sublabel">CSGF-funded Mariposa campaign support</p>
-          <select id="map">
-            <option value="0">None</option>
-            <option value="25000">$25k</option>
-            <option value="40000" selected>$40k</option>
-            <option value="60000">$60k</option>
-          </select>
+          <label class="field-label">Conversion rates</label>
+          <p class="field-sublabel">Adjust from sector benchmarks</p>
+          <div class="rate-row"><label>Inquiry → Application</label><input type="number" id="cr-i2a" value="20" min="5" max="100" step="1">%</div>
+          <div class="rate-row"><label>Offer → Acceptance</label><input type="number" id="cr-o2a" value="50" min="10" max="100" step="1">%</div>
+          <div class="rate-row"><label>Acceptance → Registration</label><input type="number" id="cr-a2r" value="75" min="20" max="100" step="1">%</div>
+          <div class="rate-row"><label>Registration → Count Day show</label><input type="number" id="cr-r2s" value="85" min="30" max="100" step="1">%</div>
         </div>
         <div class="divider"></div>
-        <div class="field-group own-toggle">
-          <label class="field-label">Who owns enrollment?</label>
-          <p class="field-sublabel">Adjusts FTE cost estimate</p>
+        <p class="panel-note">Defaults are sector benchmarks adjusted for Year 1 new schools. Adjust based on your market context. All inputs persist to URL — bookmark or share any scenario.</p>
+      </div>
+    </aside>
+    <div>
+      <div class="callout-box blue" style="margin-top:0">
+        <strong>How to read this:</strong> Work backward from your seat count. The calculator shows how many leads, applications, acceptances, and registrations you need per grade to hit your Day 1 enrollment target — accounting for drop-off at each funnel stage.
+      </div>
+      <div id="calc-funnel-viz" style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1rem;margin-bottom:1rem;box-shadow:var(--shadow-sm)"></div>
+      <div class="table-wrap" style="margin-bottom:1rem">
+        <table class="funnel-table" id="calc-table"></table>
+      </div>
+      <div class="callout-box teal">
+        <strong>Benchmark context (CSGF 2024 SRE Study, 80 networks):</strong> Offer-to-enrollment: median 42%, top performers 52%+. SRE staffing: ~1.3 FTEs per 100 newly enrolled students. Cost per new student: median ~$694. Paid social drives ~28% of leads; ~50% of enrollments trace to word-of-mouth and field recruitment. For a new school, plan conservatively: more leads, not fewer.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TAB: BUDGET ═══════════════════ -->
+<div class="tab-content" id="tab-budget">
+  <div class="bgt-layout" id="bgt-layout">
+    <aside class="ctrl-panel" aria-label="Budget inputs">
+      <div class="panel-header"><h2>Budget inputs</h2></div>
+      <div class="panel-body">
+        <div class="field-group"><label class="field-label" for="students">Students to recruit</label><div class="slider-row"><input type="range" id="students" min="50" max="300" step="10" value="100"><span class="slider-val" id="students-out">100</span></div></div>
+        <div class="field-group"><label class="field-label" for="scenario">Cost per student</label><p class="field-sublabel">Total SRE spend ÷ enrolled</p><select id="scenario"><option value="1000">$1,000 — lean</option><option value="1250" selected>$1,250 — midpoint</option><option value="1500">$1,500 — well-resourced</option></select></div>
+        <div class="divider"></div>
+        <div class="field-group"><label class="field-label" for="eirgrant">EIR general grant</label><p class="field-sublabel">Flexible CSGF grant (typical $250k)</p><select id="eirgrant"><option value="250000" selected>$250k — typical</option><option value="200000">$200k</option><option value="150000">$150k</option></select></div>
+        <div class="field-group"><label class="field-label" for="eirpct">SRE allocation of general grant</label><p class="field-sublabel">% earmarked for student recruitment</p><div class="slider-row"><input type="range" id="eirpct" min="5" max="40" step="5" value="20"><span class="slider-val" id="eirpct-out">$50k</span></div><p class="field-sublabel" id="eirpct-pct" style="margin-top:1px"></p></div>
+        <div class="divider"></div>
+        <div class="field-group"><label class="field-label" for="map">MAP / enrollment grant</label><p class="field-sublabel">CSGF-funded Mariposa campaign support</p><select id="map"><option value="0">None</option><option value="25000">$25k</option><option value="40000" selected>$40k</option><option value="60000">$60k</option></select></div>
+        <div class="divider"></div>
+        <div class="field-group own-toggle"><label class="field-label">Who owns enrollment?</label><p class="field-sublabel">Adjusts guidance, not budget range</p>
           <div class="own-btn-group">
-            <button class="own-btn" id="own-founder-led"       onclick="setOwnership('founder-led')">Founder-led</button>
-            <button class="own-btn" id="own-mixed"             onclick="setOwnership('mixed')">Founder + Principal</button>
+            <button class="own-btn" id="own-founder-led" onclick="setOwnership('founder-led')">Founder-led</button>
+            <button class="own-btn" id="own-mixed" onclick="setOwnership('mixed')">Founder + Principal</button>
             <button class="own-btn selected" id="own-enrollment-hire" onclick="setOwnership('enrollment-hire')">Founder + Enrollment hire</button>
           </div>
           <p class="own-hint" id="own-hint">Founder at 20–25% baseline + dedicated Enrollment Director or Ops Leader at 80–100%</p>
@@ -640,536 +417,577 @@
         <p class="panel-note">Inputs update the URL automatically — bookmark or share any scenario.</p>
       </div>
     </aside>
-
-    <!-- ── Model (centre) ── -->
     <div class="model-col">
-      <div class="summary-row" id="summary-row"></div>
+      <div class="summary-row" id="bgt-summary"></div>
       <div class="legend">
-        <div class="leg-item"><span class="leg-dot" style="background:#1E6FA8;"></span> School own funds</div>
-        <div class="leg-item"><span class="leg-dot" style="background:#0E7C6B;"></span> EIR general grant (SRE portion)</div>
-        <div class="leg-item"><span class="leg-dot" style="background:#C47D14;"></span> MAP / enrollment grant</div>
-        <div class="leg-item"><span class="leg-dot" style="background:#DDE1E8;"></span> Unfunded gap</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#1E6FA8"></span> School own funds</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#0E7C6B"></span> EIR general grant</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#C47D14"></span> MAP grant</div>
+        <div class="leg-item"><span class="leg-dot" style="background:#DDE1E8"></span> Unfunded</div>
       </div>
-      <div class="table-wrap">
-        <table id="main-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Budget range</th>
-              <th>School funds</th>
-              <th>EIR gen. grant</th>
-              <th>MAP grant</th>
-              <th class="th-bar">Mix</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-      </div>
-      <div class="footnote-box" id="footnote"></div>
+      <div class="table-wrap"><table class="bgt" id="bgt-table"><thead><tr><th>Category</th><th>Range</th><th>School</th><th>EIR gen.</th><th>MAP</th><th style="width:80px">Mix</th></tr></thead><tbody id="bgt-body"></tbody></table></div>
+      <div class="footnote-box" id="bgt-footnote"></div>
     </div>
-
-    <!-- ── Sidebar (right) ── -->
-    <aside class="sidebar-col" id="sidebar-col" aria-label="Investment framing context">
+    <aside class="sidebar-col" id="sidebar-col">
       <div class="sidebar">
-
-        <div class="sb-header">
-          <div class="sb-header-text">
-            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <div class="sb-title">Investment framing <strong>Context & key questions</strong></div>
+        <div class="sb-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="sb-title">Investment framing<strong>Context & key questions</strong></div></div>
+        <div class="sb-body">
+          <div class="sb-section"><button class="sb-section-btn open" onclick="toggleSection(this)">Key framing principle<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="sb-section-content open"><div class="sb-callout">The MAP/enrollment grant is <strong>not designed to cover the entirety of an EIR's SRE budget.</strong> It is scoped to digital campaigns, paid media, and Mariposa consulting support.</div><p>A comprehensive Year 1 strategy requires all three funding streams. MAP covers the digital layer. The EIR general grant is the pre-revenue bridge that makes everything else possible.</p>
+              <table class="sb-stream-table"><thead><tr><th>Stream</th><th>Primary role</th></tr></thead><tbody>
+                <tr><td><span class="stream-dot" style="background:#1E6FA8"></span>School funds</td><td>Field, events, partial infra; grows post-Day 1</td></tr>
+                <tr><td><span class="stream-dot" style="background:#0E7C6B"></span>EIR gen. grant</td><td>FTE (primary), strategy, infra, field/events pre-open</td></tr>
+                <tr><td><span class="stream-dot" style="background:#C47D14"></span>MAP grant</td><td>Paid media, awareness, app gen, tools, consulting</td></tr>
+              </tbody></table>
+            </div>
+          </div>
+          <div class="sb-section"><button class="sb-section-btn" onclick="toggleSection(this)">The staffing imperative<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="sb-section-content"><p>Target: <strong>80–100% FTE equivalent</strong> dedicated to SRE. Founder's 20–25% is the non-negotiable floor. The remaining 60–80% comes from a Principal, dedicated hire, or the founder themselves.</p><div class="sb-callout teal"><strong>Benchmark:</strong> ~1.3 FTEs per 100 newly enrolled students (2024 SRE Study). Plan for 12-month runway pre-open.</div><p>Before Day 1, there is no per-pupil revenue. The EIR general grant makes a dedicated enrollment hire fundable.</p></div>
+          </div>
+          <div class="sb-section"><button class="sb-section-btn" onclick="toggleSection(this)">How much of the general grant?<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="sb-section-content"><table class="sb-thresh-table"><thead><tr><th>%</th><th>What it enables</th></tr></thead><tbody>
+              <tr><td><span class="pct-badge">10%</span> ~$25k</td><td>Heavily MAP-dependent. Dedicated FTE unlikely. High risk.</td></tr>
+              <tr><td><span class="pct-badge mid">20%</span> ~$50k</td><td>Dedicated FTE for 6–9 months fundable. <strong>Inflection point.</strong></td></tr>
+              <tr><td><span class="pct-badge hi">30%</span> ~$75k</td><td>Both FTE and field/event spend covered. Strongest EIR profile.</td></tr>
+            </tbody></table><div class="sb-callout"><strong>Recommendation:</strong> 20–25% of the general grant to SRE, with MAP layered on top, is the floor for a comprehensive strategy.</div></div>
+          </div>
+          <div class="sb-section"><button class="sb-section-btn" onclick="toggleSection(this)">Key conversation questions<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="sb-section-content"><ul class="sb-q-list">
+              <li><strong>What % of the general grant for SRE?</strong> At what point does CSGF set expectations with EIRs that a minimum allocation is needed?</li>
+              <li><strong>What is MAP meant to accomplish?</strong> Are EIRs clear it covers the digital layer — not the whole budget?</li>
+              <li><strong>How do we set expectations before an EIR applies?</strong> EIRs treating MAP as their full enrollment strategy will underinvest in FTE and field work.</li>
+            </ul></div>
           </div>
         </div>
-
-        <div class="sb-body">
-
-          <!-- Section 1: Purpose -->
-          <div class="sb-section">
-            <button class="sb-section-btn open" onclick="toggleSection(this)">
-              Purpose of this model
-              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-section-content open">
-              <p>This model maps what a comprehensive Year 1 SRE budget looks like for a school opening for the first time, and shows how three distinct funding streams cover each spending category.</p>
-              <p>The goal is to inform how CSGF thinks about the right investment approach across the EIR general grant and MAP/enrollment grant — and to ground that conversation in realistic numbers.</p>
-            </div>
-          </div>
-
-          <!-- Section 2: What the pilot showed -->
-          <div class="sb-section">
-            <button class="sb-section-btn" onclick="toggleSection(this)">
-              What the pilot EIR MAP revealed
-              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-section-content">
-              <p>During the pilot, CSGF invested <strong>$60k per EIR</strong> in MAP support — approximately <strong>$40k toward planning, infrastructure, and top-of-funnel</strong> (including $20k in paid media), with the balance toward consulting and campaign management.</p>
-              <p>Several EIRs still did not hit their enrollment goals.</p>
-              <div class="sb-callout amber">
-                <strong>The core question:</strong> Was the shortfall a digital underspend problem — or a whole-budget problem, with critical categories like dedicated FTE, field strategy, and post-offer yield work going unfunded?
-              </div>
-              <p>This model suggests it was largely the latter. MAP covered the top of the funnel. The bottom half — and the human capacity to work it — was often underfunded or absent.</p>
-            </div>
-          </div>
-
-          <!-- Section 3: Framing principle -->
-          <div class="sb-section">
-            <button class="sb-section-btn" onclick="toggleSection(this)">
-              Key framing principle
-              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-section-content">
-              <div class="sb-callout">
-                The MAP/enrollment grant is <strong>not designed to cover the entirety of an EIR's SRE budget.</strong> It is scoped to digital campaigns, paid media, and Mariposa consulting support.
-              </div>
-              <p>A comprehensive Year 1 strategy requires all three funding streams. MAP covers the digital infrastructure. The EIR general grant is the pre-revenue bridge that makes everything else possible.</p>
-
-              <table class="sb-stream-table">
-                <thead>
-                  <tr><th>Stream</th><th>Primary role</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="stream-dot" style="background:#1E6FA8;"></span>School funds</td>
-                    <td>Field, events, partial infra; grows post-Day 1</td>
-                  </tr>
-                  <tr>
-                    <td><span class="stream-dot" style="background:#0E7C6B;"></span>EIR gen. grant</td>
-                    <td>FTE (primary), strategy, infra, field/events pre-open</td>
-                  </tr>
-                  <tr>
-                    <td><span class="stream-dot" style="background:#C47D14;"></span>MAP grant</td>
-                    <td>Paid media, awareness, app gen, tools, Mariposa consulting</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Section 4: FTE imperative -->
-          <div class="sb-section">
-            <button class="sb-section-btn" onclick="toggleSection(this)">
-              The staffing imperative
-              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-section-content">
-              <p>The single largest line item is <strong>dedicated FTE capacity (25–35% of total SRE spend)</strong> — and the most frequently underfunded.</p>
-              <p>Lead conversion, post-offer nurture, offer management, registration follow-through, and summer onboarding are all FTE labor. There are no separate lines for these. If the FTE is missing, the back half of the funnel goes unworked — regardless of how strong the paid media campaign is.</p>
-              <div class="sb-callout teal">
-                <strong>Benchmark:</strong> ~1.3 FTEs per 100 newly enrolled students (2024 SRE Study). Collegiate Academies hired their school leader a year early, spending ~50% of their time on SRE — their best investment.
-              </div>
-              <p>Before Day 1, there is no per-pupil revenue. The EIR general grant is the bridge that makes a dedicated enrollment hire fundable.</p>
-              <p style="font-style:italic; color:var(--gray-400); font-size:.73rem; margin-top:.4rem;">"Enrollment can't be 30% of someone's job and succeed."</p>
-            </div>
-          </div>
-
-          <!-- Section 5: General grant allocation -->
-          <div class="sb-section">
-            <button class="sb-section-btn" onclick="toggleSection(this)">
-              How much of the general grant?
-              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-section-content">
-              <p>The slider in the model is the key variable. Here's what each threshold unlocks:</p>
-              <table class="sb-thresh-table">
-                <thead><tr><th>Allocation</th><th>What it enables</th></tr></thead>
-                <tbody>
-                  <tr>
-                    <td><span class="pct-badge">10%</span><br><span style="font-size:.68rem;color:var(--gray-400);">~$25k</span></td>
-                    <td>Heavily reliant on MAP and ED time. Dedicated FTE is likely unworkable. High risk of missing enrollment goals.</td>
-                  </tr>
-                  <tr>
-                    <td><span class="pct-badge mid">20%</span><br><span style="font-size:.68rem;color:var(--gray-400);">~$50k</span></td>
-                    <td>Dedicated enrollment FTE for 6–9 months pre-open becomes fundable. <strong>The inflection point for a viable strategy.</strong></td>
-                  </tr>
-                  <tr>
-                    <td><span class="pct-badge hi">30%</span><br><span style="font-size:.68rem;color:var(--gray-400);">~$75k</span></td>
-                    <td>Both FTE and meaningful field/event spend are covered. Profile of the strongest EIR opens (MOXIE, Ft. Worth STEAM).</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="sb-callout" style="margin-top:.6rem;">
-                <strong>Recommendation:</strong> 20–25% of the general grant earmarked for SRE, with MAP layered on top, is the floor for a comprehensive strategy at 100 students.
-              </div>
-            </div>
-          </div>
-
-          <!-- Section 6: Key questions -->
-          <div class="sb-section">
-            <button class="sb-section-btn" onclick="toggleSection(this)">
-              Key conversation questions
-              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sb-section-content">
-              <ul class="sb-q-list">
-                <li>
-                  <strong>What % of the general grant should be earmarked for SRE?</strong>
-                  At what point does CSGF set expectations with EIRs that a minimum allocation is needed to run a viable strategy?
-                </li>
-                <li>
-                  <strong>What is MAP meant to accomplish within that broader strategy?</strong>
-                  Are EIRs clear that MAP covers the digital layer — not the whole budget?
-                </li>
-                <li>
-                  <strong>How do we set expectations before an EIR applies?</strong>
-                  EIRs that treat MAP as their full enrollment strategy will underinvest in FTE and field work — and likely miss targets regardless of ad performance.
-                </li>
-                <li>
-                  <strong>Should SRE allocation be a structured part of EIR onboarding?</strong>
-                  This model could be a tool in that conversation: showing founders the full picture and the decisions they need to make from the general grant.
-                </li>
-              </ul>
-            </div>
-          </div>
-
-        </div><!-- /sb-body -->
-      </div><!-- /sidebar -->
+      </div>
     </aside>
+  </div>
+</div>
 
-  </div><!-- /outer-layout -->
+<!-- ═══════════════════ TAB: RESOURCES ═══════════════════ -->
+<div class="tab-content" id="tab-resources">
+  <h2 style="font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:.25rem">Enrollment Resources for New School Leaders</h2>
+  <p class="res-intro">Six tools and studies from CSGF that directly support your Year 0 enrollment planning. Each includes a plain-language note on what it is, when to use it, and what you'll get from it. These are the starting points — not the full library.</p>
+  <div class="res-grid" id="res-grid"></div>
+</div>
+
 </main>
 
 <script>
-// ── Data ──────────────────────────────────────────────────────────────────────
-const CATS = [
-  { id:'strategy', grp:'Planning & infrastructure', name:'Market scan & strategy plan', sub:'Competitive scan, population trends, target-setting, go-to-market plan. School Explorer covers most market analysis; cost reflects strategy synthesis and planning support, not a full custom study.', pctLo:0, pctHiFixed:1000, school:.2, gen:.6, map:.2, anchor:false, absorbed:false, fixedRange:true },
-  { id:'infra', grp:'Planning & infrastructure', name:'Initial infrastructure', sub:'Website, social/Meta setup, CRM, email/text platform, lottery platform, nurture flow setup. Includes ad creative and collateral design — messaging, ad copy, and creative assets are part of infrastructure buildout, not a separate line.', pctLo:7, pctHi:12, school:.15, gen:.5, map:.35, anchor:false, absorbed:false },
-  { id:'awareness', grp:'Top of funnel', name:'Awareness marketing', sub:'Brand awareness campaigns; CPM/click-based. Goal: 6–8 impressions across TAM. Includes ad creative and messaging development as part of campaign setup.', pctLo:4, pctHi:8, school:.1, gen:.3, map:.6, anchor:false, absorbed:false },
-  { id:'leadgen', grp:'Top of funnel', name:'Lead generation — paid media', sub:'Meta/Google lead-gen ads with clear CTA (Learn More, Tour, Event). Benchmark: <$40 CPL. Ad copy and creative covered by campaign setup. Primary MAP target.', pctLo:12, pctHi:18, school:.05, gen:.2, map:.75, anchor:false, absorbed:false, mapPrimary:true },
-  { id:'appgen', grp:'Top of funnel', name:'App generation campaigns', sub:'"Apply Now" traffic campaigns. More efficient after lead-nurture is in place. Creative and copy included in campaign setup.', pctLo:3, pctHi:6, school:.1, gen:.25, map:.65, anchor:false, absorbed:false },
-  { id:'listacq', grp:'Top of funnel', name:'List acquisition', sub:'Purchase or FOIA request of contact lists (e.g., district enrollment data, community organization lists) for targeted outreach. Low cost but high-leverage for new markets with no existing lead pipeline.', pctLo:0, pctHiFixed:2000, school:.3, gen:.5, map:.2, anchor:false, absorbed:false, fixedRange:true },
-  { id:'traditional', grp:'Top of funnel', name:'Traditional media & signage', sub:'Mailers, billboards, bus ads, yard signs, banners, and outdoor signage. Hard to track — use QR codes where possible. Signage (building-level and community) included here. Reaches families not captured by digital.', pctLo:0, pctHiFixed:15000, school:.3, gen:.5, map:.2, anchor:false, absorbed:false, fixedRange:true },
-  { id:'field', grp:'Conversion & field', name:'Field strategy — hard costs', sub:'Swag, printed materials (flyers, brochures, door hangers), table/booth reservation fees, event entry fees, and branded supplies for canvassing and tabling. FTE time for field work (block-walking, canvassing, community events) is captured in the staffing line.', pctLo:3, pctHi:6, school:.35, gen:.55, map:.1, anchor:false, absorbed:false },
-  { id:'events', grp:'Conversion & field', name:'Event strategy', sub:'Open houses, tours, coffee w/ principal, pizza nights, popsicles in the park. Venue, food, and materials. Event messaging and invitation copy are part of nurture comms, not a separate line. FTE time to plan and run events is in the staffing line.', pctLo:5, pctHi:9, school:.35, gen:.55, map:.1, anchor:false, absorbed:false },
-  { id:'fte', grp:'Capacity & staff', name:'Dedicated enrollment capacity', sub:'Target: 80–100% FTE equivalent dedicated to SRE. Founder contributes 20–25% as a non-negotiable baseline (vision, community presence, oversight). Remaining 60–80% comes from a Principal, dedicated Enrollment Director/Ops hire, or the founder themselves. Covers: field execution, lead conversion, event management, nurture, offer management, registration, and onboarding.', pctLo:25, pctHi:35, school:.2, gen:.7, map:.1, anchor:true, absorbed:false },
-  { id:'leadconv', grp:'Capacity & staff', name:'Lead conversion — calls, texts, emails to leads', sub:'Direct outreach to move leads toward application. 24–48 hr response benchmark.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE makes the calls, manages the pipeline.' },
-  { id:'postoffer', grp:'Yield & onboarding', name:'Post-app, offer & registration nurture', sub:'Drip sequences + direct outreach post-application, post-offer, through registration completion.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE owns the back half of the funnel.' },
-  { id:'postaccept', grp:'Yield & onboarding', name:'Post-acceptance nurture through FWoS', sub:'Calls, texts, events from registration through Day 1. Plan for 15%+ no-show in Year 1.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE manages summer melt prevention and onboarding.' },
-  { id:'automations', grp:'Yield & onboarding', name:'Nurture automations & tools', sub:'Email/text platform subscriptions, drip campaign setup, Zapier/MailChimp flows. FTE executes; tools are a separate spend line.', pctLo:2, pctHi:4, school:.1, gen:.3, map:.6, anchor:false, absorbed:false },
+// ═══════════════════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ── Arc phases ───────────────────────────────────────────────────────────────
+const ARC_PHASES = [
+  { id:'foundation', num:'Phase 1', name:'Foundation', months:'Aug–Sep', monthsLong:'Months 12–10 before opening', color:'#1A3F5C', flex:2,
+    focus:'Set the strategic and operational foundation. The recruitment clock starts now.',
+    milestones:['Enrollment goal setting & funnel math complete','Board Year 1 budget approved with enrollment targets','CRM selected, configured, and live before first lead','Market analysis complete (School Explorer or equivalent)'],
+    lanes:[
+      {name:'Operations',icon:'⚙',color:'#1A3F5C',items:['Market analysis: population, competition, charter awareness','Define value proposition — safety, belonging, community first','Select and configure CRM before any outreach begins','Build funnel math model: work backward from budgeted seats']},
+      {name:'Lead Gen',icon:'📣',color:'#0E7C6B',items:['Launch community presence and awareness outreach immediately','Conduct community listening: 2 focus groups or 50–100 family survey','Establish organic social channels and Google Business profile','Build relationships with community connectors']},
+      {name:'Field',icon:'🤝',color:'#C47D14',items:['Hire or designate a dedicated enrollment lead with community roots','Begin attending community events with contact capture','Map target neighborhoods and family gathering spots']},
+      {name:'Enrollment',icon:'📋',color:'#1E6FA8',items:['Design family enrollment process end-to-end before it opens','Launch landing page and inquiry form — even before full website']},
+      {name:'Persistence',icon:'🔁',color:'#6B46C1',items:['Treat earliest contacts as founding families — your year-two asset','Think about belonging from the very first outreach']}
+    ]
+  },
+  { id:'launch', num:'Phase 2', name:'Launch & Recruitment', months:'Oct–Jan', monthsLong:'Months 11–7 before opening', color:'#0E7C6B', flex:4,
+    focus:'Open your application. Run all funnel stages simultaneously. Families are shopping now.',
+    milestones:['Application window opens (October–November target)','Facility secured (target: November–December)','Weekly funnel reviews established by November','Paid digital campaigns live'],
+    lanes:[
+      {name:'Operations',icon:'⚙',color:'#1A3F5C',items:['Open application, confirm CRM tracking every stage','Set weekly lead and application targets by grade','Build lead nurture email/text sequences for every funnel stage','Create transportation information resource — 34% of non-applicants cite this as barrier']},
+      {name:'Lead Gen',icon:'📣',color:'#0E7C6B',items:['Launch paid digital campaigns — Oct–Nov is peak performance window','Contact every new inquiry within 24–48 hours','Invest in field outreach parallel to digital — 50% of enrollments trace to word-of-mouth','Build parent ambassador infrastructure among earliest inquiries']},
+      {name:'Field',icon:'🤝',color:'#C47D14',items:['Host 2+ community events before lottery — event attendees convert at significantly higher rates','Make personal phone calls to every family who inquires but hasn\'t applied','For Pre-K/K families: build a dedicated pathway with more touchpoints']},
+      {name:'Enrollment',icon:'📋',color:'#1E6FA8',items:['Design and communicate lottery process clearly and early','Build post-lottery yield protocol BEFORE the lottery runs']},
+      {name:'Persistence',icon:'🔁',color:'#6B46C1',items:['Every communication between inquiry and Day 1 deepens belonging','Begin building founding family community: group chat, newsletter, or social group']}
+    ]
+  },
+  { id:'conversion', num:'Phase 3', name:'Recruitment & Conversion', months:'Feb–Apr', monthsLong:'Months 6–4 before opening', color:'#C47D14', flex:3,
+    focus:'Conversion intensifies — but lead and app generation must continue in parallel.',
+    milestones:['Lottery conducted / post-lottery window active','Decision point: conversion calibration (March)','75% of budgeted enrollment registered by April 30','Budget & staffing decision framework active'],
+    lanes:[
+      {name:'Operations',icon:'⚙',color:'#1A3F5C',items:['Weekly funnel reviews with grade-level visibility','Set weekly lead + app goals in parallel with conversion targets','Build contingency plan for any grade below 80% registered by May 1','Audit registration process for friction — every unnecessary step loses families']},
+      {name:'Lead Gen',icon:'📣',color:'#0E7C6B',items:['Jan–Mar is second peak digital performance window — run at full intensity','Do NOT reduce lead gen after the lottery — spring apps are your second-largest volume','June is least efficient paid media month — begin stepping down in late May']},
+      {name:'Field',icon:'🤝',color:'#C47D14',items:['Structured yield protocol for every offered family: welcome call → transport FAQ → campus visit → check-in','Host pre-enrollment campus experience — 27% of non-enrollees cited lack of student/teacher meeting','Track reason every family declines an offer in CRM']},
+      {name:'Enrollment',icon:'📋',color:'#1E6FA8',items:['Begin onboarding comms as soon as family completes registration — don\'t wait for August','Develop Pre-K/K-specific onboarding track with peer-family pairing']},
+      {name:'Persistence',icon:'🔁',color:'#6B46C1',items:['Every month between offer and Day 1 is a persistence intervention','Identify and nurture most enthusiastic founding families as persistence champions']}
+    ],
+    benchmarks:[
+      {metric:'Applications vs. seats at lottery',risk:'< 1.5x',ok:'1.5–2.0x',strong:'2.0x+'},
+      {metric:'Offer-to-acceptance rate',risk:'< 35%',ok:'35–50%',strong:'50%+'},
+      {metric:'% budgeted enrollment registered by Apr 30',risk:'< 50%',ok:'50–75%',strong:'75%+'},
+      {metric:'% budgeted enrollment registered by Jun 30',risk:'< 70%',ok:'70–90%',strong:'90%+'},
+      {metric:'Lead response time',risk:'> 72 hrs',ok:'24–72 hrs',strong:'< 24 hrs'},
+    ]
+  },
+  { id:'summer', num:'Phase 4', name:'Summer Push', months:'May–Aug', monthsLong:'Months 3–0 before opening', color:'#A32D2D', flex:4,
+    focus:'Run all three streams simultaneously. Don\'t take your foot off the gas — but plan conservatively.',
+    milestones:['Staffing alignment decision (early July)','New family orientation designed and scheduled','Day 1 no-show protocol built and assigned','90% of budgeted enrollment registered by June 30'],
+    lanes:[
+      {name:'Operations',icon:'⚙',color:'#1A3F5C',items:['Maintain weekly funnel reviews through opening day','Keep application live and website current through opening day','Track daily enrollment in the first two weeks of school']},
+      {name:'Lead Gen',icon:'📣',color:'#0E7C6B',items:['June: reduce paid media (least efficient month)','July: ramp back up fully (highest efficiency month of the year)','Maintain always-on enrollment readiness through August: staffed inquiry line, live app']},
+      {name:'Field',icon:'🤝',color:'#C47D14',items:['Actively manage waitlist — contact waitlisted families monthly','Execute same-day no-show protocol personally on Day 1','Backfill from waitlist quickly — every empty day is lost revenue']},
+      {name:'Enrollment',icon:'📋',color:'#1E6FA8',items:['Make orientation genuinely welcoming — first in-person experience shapes year-one persistence','Follow up after orientation within 48 hours with clear next steps','Reach out personally to families who miss orientation — highest no-show risk']},
+      {name:'Persistence',icon:'🔁',color:'#6B46C1',items:['Plan for 10–15% summer melt if no action taken','Build community before school starts: founding family social events, student ambassador connections','Identify high-risk melt signals: disengagement, transport uncertainty, multiple-school applicants']}
+    ]
+  },
+  { id:'opening', num:'Phase 5', name:'Opening & Stabilization', months:'Aug–Oct', monthsLong:'Day 1 through Count Day + Month 1', color:'#6B46C1', flex:3,
+    focus:'Open strong. Protect enrollment through Count Day. Begin building for year two.',
+    milestones:['Day 1: target < 10% no-show for registered students','Count Day: 95%+ of budgeted enrollment confirmed','Post-Count-Day SRE debrief conducted','Year-two planning initiated by October'],
+    lanes:[
+      {name:'Operations',icon:'⚙',color:'#1A3F5C',items:['Execute Day 1 no-show protocol — personal call before end of school day','Track daily enrollment through first 3 weeks','Conduct post-Count-Day SRE debrief: what worked, what didn\'t, what changes for year two']},
+      {name:'Lead Gen',icon:'📣',color:'#0E7C6B',items:['Continue accepting late enrollments through first month of school','Transition marketing from acquisition to retention and community-building']},
+      {name:'Field',icon:'🤝',color:'#C47D14',items:['Backfill off waitlist within 24–48 hours of any withdrawal','Personal outreach to every Day 1 no-show — call from the principal, not admin staff']},
+      {name:'Enrollment',icon:'📋',color:'#1E6FA8',items:['Assign every new family a named contact at the school','Follow up on first week: personal thank-you and check-in']},
+      {name:'Persistence',icon:'🔁',color:'#6B46C1',items:['Target 88%+ year-one persistence — ambitious but achievable with right systems','Begin re-enrollment campaign by October — do not wait for spring','The persistence dividend: improving from 75% to 85% cuts year-two recruitment burden by 40%']}
+    ],
+    benchmarks:[
+      {metric:'Day 1 attendance (registered who show)',risk:'< 80%',ok:'80–90%',strong:'90%+'},
+      {metric:'Count Day enrollment vs. budget',risk:'< 85%',ok:'85–94%',strong:'95%+'},
+      {metric:'Same-day no-show outreach executed',risk:'Not in place',ok:'Partial',strong:'100% contacted Day 1'},
+      {metric:'Waitlist backfill speed',risk:'> 5 days',ok:'2–5 days',strong:'Same day / next day'},
+      {metric:'Year 1 persistence rate',risk:'< 78%',ok:'78–87%',strong:'88%+'},
+    ]
+  },
 ];
 
-const GROUPS = ['Planning & infrastructure','Top of funnel','Conversion & field','Capacity & staff','Yield & onboarding'];
+const LANE_COLORS = {'Operations':'#1A3F5C','Lead Gen':'#0E7C6B','Field':'#C47D14','Enrollment':'#1E6FA8','Persistence':'#6B46C1'};
 
-const fmt  = n => '$' + Math.round(n).toLocaleString();
-const fmtK = n => n === 0 ? '—' : '$' + Math.round(n / 1000) + 'k';
-const dash = '<span class="dash">—</span>';
+// ── Budget categories ────────────────────────────────────────────────────────
+const BUDGET_CATS = [
+  {id:'strategy',grp:'Planning & infrastructure',name:'Market scan & strategy plan',sub:'School Explorer covers most market analysis; cost reflects strategy synthesis and planning support.',pctLo:0,pctHiFixed:1000,school:.2,gen:.6,map:.2,fixedRange:true},
+  {id:'infra',grp:'Planning & infrastructure',name:'Initial infrastructure',sub:'Website, social/Meta setup, CRM, email/text platform, lottery platform, nurture flow setup. Ad creative and collateral design included.',pctLo:7,pctHi:12,school:.15,gen:.5,map:.35},
+  {id:'awareness',grp:'Top of funnel',name:'Awareness marketing',sub:'Brand awareness campaigns; CPM/click-based. Goal: 6–8 impressions across TAM.',pctLo:4,pctHi:8,school:.1,gen:.3,map:.6},
+  {id:'leadgen',grp:'Top of funnel',name:'Lead generation — paid media',sub:'Meta/Google lead-gen with clear CTA. Benchmark: <$40 CPL. Primary MAP target.',pctLo:12,pctHi:18,school:.05,gen:.2,map:.75,mapPrimary:true},
+  {id:'appgen',grp:'Top of funnel',name:'App generation campaigns',sub:'"Apply Now" traffic campaigns. More efficient after lead-nurture.',pctLo:3,pctHi:6,school:.1,gen:.25,map:.65},
+  {id:'listacq',grp:'Top of funnel',name:'List acquisition',sub:'FOIA requests or purchased contact lists for targeted outreach.',pctLo:0,pctHiFixed:2000,school:.3,gen:.5,map:.2,fixedRange:true},
+  {id:'traditional',grp:'Top of funnel',name:'Traditional media & signage',sub:'Mailers, billboards, bus ads, yard signs, banners, outdoor signage.',pctLo:0,pctHiFixed:15000,school:.3,gen:.5,map:.2,fixedRange:true},
+  {id:'field',grp:'Conversion & field',name:'Field strategy — hard costs',sub:'Swag, printed materials, booth fees, event entry fees. FTE time for field work is in the staffing line.',pctLo:3,pctHi:6,school:.35,gen:.55,map:.1},
+  {id:'events',grp:'Conversion & field',name:'Event strategy',sub:'Open houses, tours, pizza nights. Venue, food, materials. FTE time to run events is in staffing line.',pctLo:5,pctHi:9,school:.35,gen:.55,map:.1},
+  {id:'fte',grp:'Capacity & staff',name:'Dedicated enrollment capacity',sub:'Target: 80–100% FTE equivalent. Founder 20–25% baseline + remaining from Principal, Enrollment Director, or founder. Covers field execution, lead conversion, nurture, offers, registration, onboarding.',pctLo:25,pctHi:35,school:.2,gen:.7,map:.1,anchor:true},
+  {id:'leadconv',grp:'Capacity & staff',name:'Lead conversion — calls, texts, emails',sub:'Direct outreach to move leads toward application.',absorbed:true,absorbedLabel:'Absorbed into staffing line — FTE makes the calls, manages the pipeline.'},
+  {id:'postoffer',grp:'Yield & onboarding',name:'Post-app, offer & registration nurture',sub:'Drip sequences + direct outreach post-application through registration.',absorbed:true,absorbedLabel:'Absorbed into staffing line — FTE owns the back half of the funnel.'},
+  {id:'postaccept',grp:'Yield & onboarding',name:'Post-acceptance nurture through FWoS',sub:'Calls, texts, events from registration through Day 1.',absorbed:true,absorbedLabel:'Absorbed into staffing line — FTE manages summer melt prevention.'},
+  {id:'automations',grp:'Yield & onboarding',name:'Nurture automations & tools',sub:'Email/text platform subscriptions, drip campaign setup. FTE executes; tools are a separate spend.',pctLo:2,pctHi:4,school:.1,gen:.3,map:.6},
+];
+const BUDGET_GROUPS = ['Planning & infrastructure','Top of funnel','Conversion & field','Capacity & staff','Yield & onboarding'];
 
-// ── URL state ─────────────────────────────────────────────────────────────────
-function getParams() {
-  const p = new URLSearchParams(location.search);
-  return {
-    students: +p.get('s')  || 100,
-    scenario: +p.get('sc') || 1250,
-    eirgrant: +p.get('eg') || 250000,
-    eirpct:   +p.get('ep') || 20,
-    map:      +p.get('m')  || 40000,
-    sidebar:  p.get('sb') !== '0',
-    ownership: p.get('ow') || 'enrollment-hire',
-  };
-}
-function pushParams(v) {
-  const p = new URLSearchParams();
-  p.set('s', v.students); p.set('sc', v.scenario);
-  p.set('eg', v.eirgrant); p.set('ep', v.eirpct);
-  p.set('m', v.map); p.set('sb', v.sidebar ? '1' : '0');
-  p.set('ow', v.ownership || 'enrollment-hire');
-  history.replaceState(null, '', '?' + p.toString());
-}
-function initInputs() {
-  const v = getParams();
-  document.getElementById('students').value = v.students;
-  document.getElementById('scenario').value = v.scenario;
-  document.getElementById('eirgrant').value = v.eirgrant;
-  document.getElementById('eirpct').value   = v.eirpct;
-  document.getElementById('map').value      = v.map;
-  if (!v.sidebar) {
-    document.getElementById('outer-layout').classList.add('sidebar-hidden');
-    document.getElementById('sidebar-col').style.display = 'none';
-    document.getElementById('sidebar-toggle-btn').classList.remove('active');
-  }
-  setOwnership(v.ownership, true); // true = silent (don't re-render yet)
-}
-
-// ── Sidebar toggle ────────────────────────────────────────────────────────────
-let sidebarOpen = true;
-function toggleSidebar() {
-  sidebarOpen = !sidebarOpen;
-  const layout = document.getElementById('outer-layout');
-  const col = document.getElementById('sidebar-col');
-  const btn = document.getElementById('sidebar-toggle-btn');
-  if (sidebarOpen) {
-    layout.classList.remove('sidebar-hidden');
-    col.style.display = '';
-    btn.classList.add('active');
-  } else {
-    layout.classList.add('sidebar-hidden');
-    col.style.display = 'none';
-    btn.classList.remove('active');
-  }
-  const v = getParams();
-  v.sidebar = sidebarOpen;
-  pushParams(v);
-}
-
-// ── Accordion ─────────────────────────────────────────────────────────────────
-function toggleSection(btn) {
-  const content = btn.nextElementSibling;
-  const isOpen = btn.classList.contains('open');
-  btn.classList.toggle('open', !isOpen);
-  content.classList.toggle('open', !isOpen);
-}
-
-// ── Ownership mode ────────────────────────────────────────────────────────────
-// Framing: Founder always contributes 20–25% of their time to SRE — that's the floor,
-// non-negotiable regardless of model. The toggle controls who fills the remaining
-// 60–80% FTE needed to hit the 80–100% total target.
-// Budget range is the same across modes (founder salary is often higher than a
-// dedicated hire, so founder-led is not cheaper — just differently structured).
-
-let ownershipMode = 'enrollment-hire'; // 'founder-led' | 'mixed' | 'enrollment-hire'
-
+// ── Ownership config ─────────────────────────────────────────────────────────
 const OWN_CONFIG = {
-  'founder-led': {
-    label: 'Founder-led',
-    hint:  'Founder absorbs both the 20–25% baseline + remaining 60–80% — totaling 80–100% of their role on SRE',
-    ftePctLo: 25, ftePctHi: 35,
-    founderPct: '80–100%',
-    chips: [
-      { role: 'Founder', pct: '80–100%', note: 'total SRE time', constant: false, highlight: true },
-      { role: 'Additional staff', pct: 'none', note: '' },
-    ],
-    runwayNote: 'Founder time is the scarcest resource. Pre-facility commitments, hiring, and academic design all compete for founder attention — plan for 12+ months of dedicated focus pre-open.',
-    riskNote: 'Possible for a short sprint, but unsustainable as opening approaches. Conversion and yield work — calling leads, running events, following up on applications — will compress when other launch demands peak. Works best when the founder is also the Principal and has strong community roots.',
-  },
-  mixed: {
-    label: 'Founder + Principal',
-    hint:  'Founder at 20–25% baseline + Principal absorbs the remaining 60–80%',
-    ftePctLo: 25, ftePctHi: 35,
-    founderPct: '20–25%',
-    chips: [
-      { role: 'Founder', pct: '20–25%', note: 'non-negotiable baseline', constant: true, highlight: false },
-      { role: 'Principal', pct: '60–75%', note: 'until July/Aug hiring season', constant: false, highlight: true },
-    ],
-    runwayNote: 'Principal SRE time drops sharply in July–August when curriculum design and teacher hiring peak. Plan for the founder to absorb more yield work during that window, or accept reduced back-half-of-funnel coverage.',
-    riskNote: 'Moderate risk. Works when founder and principal have clear lane separation and the principal is bought in on enrollment as a core part of their pre-open role. Breaks down when the principal is pulled into operations or academic planning.',
-  },
-  'enrollment-hire': {
-    label: 'Founder + Enrollment hire',
-    hint:  'Founder at 20–25% baseline + dedicated Enrollment Director or Ops Leader at 80–100%',
-    ftePctLo: 25, ftePctHi: 35,
-    founderPct: '20–25%',
-    chips: [
-      { role: 'Founder', pct: '20–25%', note: 'non-negotiable baseline', constant: true, highlight: false },
-      { role: 'Enrollment Director / Ops', pct: '80–100%', note: 'dedicated hire', constant: false, highlight: true },
-    ],
-    runwayNote: 'Hire 12 months pre-open. The earlier the hire, the more runway for community relationship-building, infrastructure setup, and lead pipeline development before the lottery window opens.',
-    riskNote: 'Lowest risk. The enrollment hire owns execution end-to-end — lead conversion, nurture, events, post-offer yield — freeing the founder to focus on vision and external relationships. Benchmark: ~1.3 FTEs per 100 newly enrolled students (2024 SRE Study). Collegiate Academies hired a year early — their best pre-open investment.',
-  },
+  'founder-led':{label:'Founder-led',hint:'Founder absorbs 80–100% of SRE time — baseline + remaining capacity',ftePctLo:25,ftePctHi:35,
+    chips:[{role:'Founder',pct:'80–100%',note:'total SRE time',constant:false,highlight:true},{role:'Additional staff',pct:'none',note:''}],
+    runwayNote:'Founder time is the scarcest resource. Plan 12+ months of dedicated focus pre-open.',
+    riskNote:'Possible short-term but unsustainable as opening approaches. Conversion and yield work compress when other launch demands peak.'},
+  mixed:{label:'Founder + Principal',hint:'Founder 20–25% baseline + Principal absorbs 60–75%',ftePctLo:25,ftePctHi:35,
+    chips:[{role:'Founder',pct:'20–25%',note:'non-negotiable baseline',constant:true},{role:'Principal',pct:'60–75%',note:'until July/Aug hiring season',highlight:true}],
+    runwayNote:'Principal SRE time drops sharply in July–August for curriculum and hiring. Plan for founder to absorb more yield work during that window.',
+    riskNote:'Moderate risk. Works when founder and principal have clear lane separation and principal is bought in on enrollment as core pre-open role.'},
+  'enrollment-hire':{label:'Founder + Enrollment hire',hint:'Founder 20–25% baseline + dedicated Enrollment Director/Ops at 80–100%',ftePctLo:25,ftePctHi:35,
+    chips:[{role:'Founder',pct:'20–25%',note:'non-negotiable baseline',constant:true},{role:'Enrollment Dir / Ops',pct:'80–100%',note:'dedicated hire',highlight:true}],
+    runwayNote:'Hire 12 months pre-open. The earlier the hire, the more runway for community relationship-building and infrastructure setup.',
+    riskNote:'Lowest risk. Benchmark: ~1.3 FTEs per 100 newly enrolled students (2024 SRE Study). Enrollment hire owns execution end-to-end.'},
 };
 
-function setOwnership(mode, silent) {
-  ownershipMode = mode;
-  // Update button states
-  ['founder-led','mixed','enrollment-hire'].forEach(m => {
-    const btn = document.getElementById('own-' + m);
-    if (btn) btn.classList.toggle('selected', m === mode);
-  });
-  // Update hint
-  const cfg = OWN_CONFIG[mode];
-  const hint = document.getElementById('own-hint');
-  if (hint) hint.textContent = cfg.hint;
-  // Update URL
-  const v = getParams();
-  v.ownership = mode;
-  pushParams(v);
-  // Re-render unless silent init
-  if (!silent) render();
+// ── Resources ────────────────────────────────────────────────────────────────
+const RESOURCES = [
+  {title:'2024 SRE Benchmarking Study',tag:'Data',tagColor:'var(--blue-pale)',tagText:'var(--blue)',when:'Use when: Setting targets, benchmarking your spend, comparing funnel performance',
+    desc:'Survey of 80 charter networks covering funnel conversion rates, staffing levels, spending per new student, and channel attribution. The sector-wide benchmarks in this toolkit are drawn from this study. Start here to calibrate whether your targets and investments are in the right range.',link:'#'},
+  {title:'The Path to Charter School Enrollment',tag:'Research',tagColor:'var(--teal-light)',tagText:'var(--teal)',when:'Use when: Understanding what families experience, designing your messaging, reducing funnel stress',
+    desc:'Study of ~5,000 families across 24 charter networks covering the full enrollment journey — from awareness through Day 1 attendance. Key findings: staff conversations are cited as "very important" by 78% of families; 53% of non-considerers worry their child won\'t feel welcomed; process stress is a major yield barrier.',link:'#'},
+  {title:'School Explorer',tag:'Tool',tagColor:'var(--amber-light)',tagText:'var(--amber)',when:'Use when: Analyzing your market — population, competition, charter sector trends',
+    desc:'CSGF\'s market research platform (built by Education Data Collaborative) covering ~1,195 active portfolio schools. Shows population trends, competitive landscape, and market share data for your school\'s catchment area. Use this before building your strategy — understand your addressable market first.',link:'#'},
+  {title:'SRE Maturity Matrices',tag:'Framework',tagColor:'var(--green-light)',tagText:'var(--green)',when:'Use when: Assessing your operational readiness, identifying gaps, building your team',
+    desc:'Self-assessment framework covering enrollment strategy maturity across multiple dimensions: leadership ownership, staffing, data infrastructure, marketing, field strategy, and family experience. Helps you identify where you are strong, where you have gaps, and what to prioritize.',link:'#'},
+  {title:'After-Action Review Guide',tag:'Process',tagColor:'var(--red-light)',tagText:'var(--red)',when:'Use when: After Count Day — conducting your post-season debrief',
+    desc:'Structured guide for the post-Count-Day enrollment debrief. Walks your team through what your funnel data showed, where families dropped off, what assumptions were wrong, and what you\'d change. The most valuable planning input for year two. Schedule this within two weeks of Count Day.',link:'#'},
+  {title:'2025 Enrollment & Marketing Convening Recap',tag:'Community',tagColor:'var(--blue-pale)',tagText:'var(--blue)',when:'Use when: Learning from peers — what\'s working for other charter enrollment leaders',
+    desc:'Summary of CSGF\'s annual enrollment convening featuring sessions from 20+ charter networks. Covers AI campaign strategies, CRM adoption, brand-building, field strategy, conversion optimization, and persistence. Practical takeaways from leaders who are doing this work every day.',link:'#'},
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════════
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const fmtK=n=>n===0?'—':'$'+Math.round(n/1000)+'k';
+const dash='<span class="dash">—</span>';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════════════════════════
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  const target = document.getElementById('tab-'+tabId);
+  if(target) target.classList.add('active');
+  const btn = document.querySelector('.tab-btn[data-tab="'+tabId+'"]');
+  if(btn) btn.classList.add('active');
+  const p = new URLSearchParams(location.search);
+  p.set('tab', tabId);
+  history.replaceState(null,'','?'+p.toString());
+  if(tabId==='budget') renderBudget();
+  if(tabId==='calc') renderCalc();
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
-function render() {
-  const students = +document.getElementById('students').value;
-  const perStu   = +document.getElementById('scenario').value;
-  const eirGrant = +document.getElementById('eirgrant').value;
-  const eirPct   = +document.getElementById('eirpct').value;
-  const mapGrant = +document.getElementById('map').value;
+function shareURL(){
+  navigator.clipboard.writeText(location.href).then(()=>{
+    const t=document.getElementById('share-toast');
+    t.classList.add('visible');
+    setTimeout(()=>t.classList.remove('visible'),2200);
+  });
+}
 
-  const total     = students * perStu;
-  const eirSRE    = eirGrant * eirPct / 100;
-  const csgfTot   = eirSRE + mapGrant;
-  const schoolOwn = Math.max(total - csgfTot, 0);
-  const csgfPct   = Math.min(Math.round(csgfTot / total * 100), 100);
-  const eirRemain = eirGrant - eirSRE;
+function toggleSection(btn){
+  const c=btn.nextElementSibling;
+  const o=btn.classList.contains('open');
+  btn.classList.toggle('open',!o);
+  c.classList.toggle('open',!o);
+}
 
-  document.getElementById('students-out').textContent = students;
-  document.getElementById('eirpct-out').textContent   = fmtK(eirSRE);
-  document.getElementById('eirpct-pct').textContent   = eirPct + '% of ' + fmtK(eirGrant) + ' general grant';
+// ═══════════════════════════════════════════════════════════════════════════════
+// ARC TAB
+// ═══════════════════════════════════════════════════════════════════════════════
+let selectedPhase = 'foundation';
 
-  const v = getParams();
-  v.students = students; v.scenario = perStu; v.eirgrant = eirGrant; v.eirpct = eirPct; v.map = mapGrant;
-  pushParams(v);
+function renderArc(){
+  const timeline = document.getElementById('arc-timeline');
+  const detail = document.getElementById('arc-detail');
+  
+  timeline.innerHTML = ARC_PHASES.map(ph=>`
+    <div class="arc-phase-bar ${ph.id===selectedPhase?'selected':''}" style="flex:${ph.flex};background:${ph.color};color:white" onclick="selectPhase('${ph.id}')">
+      <div class="ph-num">${ph.num}</div>
+      <div class="ph-name">${ph.name}</div>
+      <div class="ph-months">${ph.months}</div>
+      <div class="ph-focus">${ph.focus.substring(0,60)}${ph.focus.length>60?'…':''}</div>
+    </div>
+  `).join('');
+  
+  const ph = ARC_PHASES.find(p=>p.id===selectedPhase);
+  if(!ph) return;
+  
+  let html = `<div class="arc-detail">
+    <h3 style="font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:.25rem">${ph.num}: ${ph.name} <span style="font-weight:400;color:var(--gray-400);font-size:.85rem">(${ph.monthsLong})</span></h3>
+    <p style="font-size:.85rem;color:var(--gray-600);margin-bottom:.75rem">${ph.focus}</p>`;
+  
+  // Milestones
+  html += `<div style="margin-bottom:.75rem">`;
+  ph.milestones.forEach(ms=>{
+    html += `<div class="arc-milestone"><span class="ms-icon">✓</span>${ms}</div>`;
+  });
+  html += `</div>`;
+  
+  // Lanes
+  html += `<div class="arc-lanes">`;
+  ph.lanes.forEach(lane=>{
+    html += `<div class="arc-lane">
+      <div class="arc-lane-hd" style="background:${lane.color}" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+        ${lane.icon} ${lane.name}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="arc-lane-body"><ul>${lane.items.map(i=>'<li>'+i+'</li>').join('')}</ul></div>
+    </div>`;
+  });
+  html += `</div>`;
+  
+  // Benchmarks
+  if(ph.benchmarks){
+    html += `<div class="arc-bench"><table>
+      <thead><tr><th>Metric</th><th style="color:#ef4444">⚠ Risk</th><th style="color:var(--amber)">On Track</th><th style="color:var(--green)">Strong</th></tr></thead>
+      <tbody>${ph.benchmarks.map(b=>`<tr><td>${b.metric}</td><td>${b.risk}</td><td>${b.ok}</td><td>${b.strong}</td></tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+  
+  html += `</div>`;
+  detail.innerHTML = html;
+}
 
-  let covClass = 'ok';
-  if (csgfPct < 50) covClass = 'crit';
-  else if (csgfPct < 70) covClass = 'warn';
+function selectPhase(id){
+  selectedPhase = id;
+  renderArc();
+}
 
-  const fteCfg   = OWN_CONFIG[ownershipMode] || OWN_CONFIG['enrollment-hire'];
-  const fteMid   = total * (fteCfg.ftePctLo + fteCfg.ftePctHi) / 2 / 100;
-  const cplLeads = students * 5;
+// ═══════════════════════════════════════════════════════════════════════════════
+// CALCULATOR TAB
+// ═══════════════════════════════════════════════════════════════════════════════
+const CALC_DEFAULTS = {grades:[{name:'K',seats:60},{name:'1',seats:50},{name:'',seats:0},{name:'',seats:0}]};
 
-  document.getElementById('summary-row').innerHTML = `
-    <div class="scard"><div class="scard-label">Total SRE budget</div><div class="scard-value">${fmt(total)}</div><div class="scard-sub">${students} students × ${fmt(perStu)}</div></div>
+function getCalcParams(){
+  const p = new URLSearchParams(location.search);
+  const grades = [];
+  for(let i=1;i<=4;i++){
+    const g = p.get('g'+i) || CALC_DEFAULTS.grades[i-1]?.name || '';
+    const s = +(p.get('s'+i) || CALC_DEFAULTS.grades[i-1]?.seats || 0);
+    grades.push({name:g,seats:s});
+  }
+  return {
+    grades,
+    i2a: +(p.get('i2a') || 20),
+    o2a: +(p.get('o2a') || 50),
+    a2r: +(p.get('a2r') || 75),
+    r2s: +(p.get('r2s') || 85),
+    school: p.get('csch') || 'My School',
+  };
+}
+
+function initCalc(){
+  const v = getCalcParams();
+  const container = document.getElementById('calc-grades');
+  let html = '';
+  for(let i=0;i<4;i++){
+    html += `<div class="grade-row"><label>Grade ${i+1}</label><input type="text" id="cg-${i}" value="${v.grades[i].name}" placeholder="e.g. K" style="width:60px;display:inline-block"></div>
+    <div class="grade-row"><label>Seats</label><input type="number" id="cs-${i}" value="${v.grades[i].seats}" min="0" max="200" step="1"></div>`;
+  }
+  container.innerHTML = html;
+  document.getElementById('cr-i2a').value = v.i2a;
+  document.getElementById('cr-o2a').value = v.o2a;
+  document.getElementById('cr-a2r').value = v.a2r;
+  document.getElementById('cr-r2s').value = v.r2s;
+  document.getElementById('calc-school').value = v.school;
+  
+  // Wire events
+  document.querySelectorAll('#tab-calc input, #tab-calc select').forEach(el=>{
+    el.addEventListener('input', renderCalc);
+    el.addEventListener('change', renderCalc);
+  });
+}
+
+function renderCalc(){
+  const i2a = (+document.getElementById('cr-i2a').value || 20) / 100;
+  const o2a = (+document.getElementById('cr-o2a').value || 50) / 100;
+  const a2r = (+document.getElementById('cr-a2r').value || 75) / 100;
+  const r2s = (+document.getElementById('cr-r2s').value || 85) / 100;
+  const school = document.getElementById('calc-school').value || 'My School';
+  
+  const grades = [];
+  for(let i=0;i<4;i++){
+    const name = document.getElementById('cg-'+i)?.value || '';
+    const seats = +(document.getElementById('cs-'+i)?.value || 0);
+    if(name && seats > 0) grades.push({name,seats});
+  }
+  
+  // Push to URL
+  const p = new URLSearchParams(location.search);
+  for(let i=0;i<4;i++){
+    const g = document.getElementById('cg-'+i)?.value||'';
+    const s = document.getElementById('cs-'+i)?.value||'0';
+    p.set('g'+(i+1),g); p.set('s'+(i+1),s);
+  }
+  p.set('i2a',document.getElementById('cr-i2a').value);
+  p.set('o2a',document.getElementById('cr-o2a').value);
+  p.set('a2r',document.getElementById('cr-a2r').value);
+  p.set('r2s',document.getElementById('cr-r2s').value);
+  p.set('csch',school);
+  history.replaceState(null,'','?'+p.toString());
+  
+  if(grades.length === 0){
+    document.getElementById('calc-table').innerHTML = '<thead><tr><th colspan="7" style="text-align:center;padding:2rem;color:var(--gray-400)">Enter at least one grade with seats to see results</th></tr></thead>';
+    document.getElementById('calc-funnel-viz').innerHTML = '';
+    return;
+  }
+  
+  // Calculate funnel for each grade
+  const rows = grades.map(g=>{
+    const countDay = g.seats;
+    const regsNeeded = Math.ceil(countDay / r2s);
+    const acceptsNeeded = Math.ceil(regsNeeded / a2r);
+    const offersNeeded = Math.ceil(acceptsNeeded / o2a);
+    const appsNeeded = offersNeeded; // offers ~ apps for simplicity
+    const leadsNeeded = Math.ceil(appsNeeded / i2a);
+    return {grade:g.name, seats:countDay, regs:regsNeeded, accepts:acceptsNeeded, apps:appsNeeded, leads:leadsNeeded};
+  });
+  
+  const totals = rows.reduce((t,r)=>({seats:t.seats+r.seats,regs:t.regs+r.regs,accepts:t.accepts+r.accepts,apps:t.apps+r.apps,leads:t.leads+r.leads}),{seats:0,regs:0,accepts:0,apps:0,leads:0});
+  
+  // Table
+  let thtml = `<thead><tr><th style="text-align:left">Grade</th><th>Day 1 Seats</th><th>Leads Needed</th><th>Apps Needed</th><th>Acceptances</th><th>Registrations</th></tr></thead><tbody>`;
+  rows.forEach(r=>{
+    thtml += `<tr><td>${school} — Gr ${r.grade}</td><td>${r.seats}</td><td>${r.leads}</td><td>${r.apps}</td><td>${r.accepts}</td><td>${r.regs}</td></tr>`;
+  });
+  thtml += `<tr class="total-row"><td>Total</td><td>${totals.seats}</td><td>${totals.leads}</td><td>${totals.apps}</td><td>${totals.accepts}</td><td>${totals.regs}</td></tr></tbody>`;
+  document.getElementById('calc-table').innerHTML = thtml;
+  
+  // Funnel visual
+  const stages = [
+    {label:'Leads/Inquiries',val:totals.leads,color:'var(--blue-light)'},
+    {label:'Applications',val:totals.apps,color:'var(--blue)'},
+    {label:'Acceptances',val:totals.accepts,color:'var(--teal)'},
+    {label:'Registrations',val:totals.regs,color:'var(--amber)'},
+    {label:'Count Day',val:totals.seats,color:'var(--green)'},
+  ];
+  const maxVal = Math.max(...stages.map(s=>s.val));
+  const vizHtml = `<div style="font-size:.72rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Enrollment funnel — ${school} (${totals.seats} seats)</div>
+    <div class="funnel-visual">${stages.map(s=>`
+      <div class="funnel-bar-group">
+        <div class="funnel-bar-val">${s.val.toLocaleString()}</div>
+        <div class="funnel-bar" style="height:${Math.max(maxVal>0?s.val/maxVal*120:0,4)}px;background:${s.color}"></div>
+        <div class="funnel-bar-label">${s.label}</div>
+      </div>`).join('')}
+    </div>`;
+  document.getElementById('calc-funnel-viz').innerHTML = vizHtml;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BUDGET TAB
+// ═══════════════════════════════════════════════════════════════════════════════
+let ownershipMode = 'enrollment-hire';
+
+function setOwnership(mode, silent){
+  ownershipMode = mode;
+  ['founder-led','mixed','enrollment-hire'].forEach(m=>{
+    const btn=document.getElementById('own-'+m);
+    if(btn) btn.classList.toggle('selected',m===mode);
+  });
+  const cfg=OWN_CONFIG[mode];
+  const hint=document.getElementById('own-hint');
+  if(hint && cfg) hint.textContent=cfg.hint;
+  if(!silent) renderBudget();
+}
+
+function renderBudget(){
+  const students=+document.getElementById('students').value;
+  const perStu=+document.getElementById('scenario').value;
+  const eirGrant=+document.getElementById('eirgrant').value;
+  const eirPct=+document.getElementById('eirpct').value;
+  const mapGrant=+document.getElementById('map').value;
+  const total=students*perStu;
+  const eirSRE=eirGrant*eirPct/100;
+  const csgfTot=eirSRE+mapGrant;
+  const schoolOwn=Math.max(total-csgfTot,0);
+  const csgfPct=Math.min(Math.round(csgfTot/total*100),100);
+  const eirRemain=eirGrant-eirSRE;
+  const fteCfg=OWN_CONFIG[ownershipMode]||OWN_CONFIG['enrollment-hire'];
+  const fteMid=total*(fteCfg.ftePctLo+fteCfg.ftePctHi)/2/100;
+  const cplLeads=students*5;
+
+  document.getElementById('students-out').textContent=students;
+  document.getElementById('eirpct-out').textContent=fmtK(eirSRE);
+  document.getElementById('eirpct-pct').textContent=eirPct+'% of '+fmtK(eirGrant);
+
+  // Push URL
+  const p=new URLSearchParams(location.search);
+  p.set('bs',students);p.set('bsc',perStu);p.set('beg',eirGrant);p.set('bep',eirPct);p.set('bm',mapGrant);p.set('bow',ownershipMode);
+  history.replaceState(null,'','?'+p.toString());
+
+  let covClass='ok';
+  if(csgfPct<50)covClass='crit';else if(csgfPct<70)covClass='warn';
+
+  document.getElementById('bgt-summary').innerHTML=`
+    <div class="scard"><div class="scard-label">Total SRE budget</div><div class="scard-value">${fmt(total)}</div><div class="scard-sub">${students} × ${fmt(perStu)}</div></div>
     <div class="scard"><div class="scard-label">School own funds</div><div class="scard-value">${fmt(schoolOwn)}</div><div class="scard-sub">After CSGF grants</div></div>
-    <div class="scard"><div class="scard-label">EIR gen. grant → SRE</div><div class="scard-value">${fmtK(eirSRE)}</div><div class="scard-sub">${eirPct}% of ${fmtK(eirGrant)}</div></div>
-    <div class="scard"><div class="scard-label">MAP / enrollment grant</div><div class="scard-value">${mapGrant > 0 ? fmtK(mapGrant) : '—'}</div><div class="scard-sub">${mapGrant > 0 ? 'Paid media + consulting' : 'Not selected'}</div></div>
-    <div class="scard"><div class="scard-label">CSGF coverage</div><div class="scard-value ${covClass}">${csgfPct}%</div><div class="scard-sub">${fmt(csgfTot)} of ${fmt(total)}</div></div>
-  `;
+    <div class="scard"><div class="scard-label">EIR gen. → SRE</div><div class="scard-value">${fmtK(eirSRE)}</div><div class="scard-sub">${eirPct}% of ${fmtK(eirGrant)}</div></div>
+    <div class="scard"><div class="scard-label">MAP grant</div><div class="scard-value">${mapGrant>0?fmtK(mapGrant):'—'}</div><div class="scard-sub">${mapGrant>0?'Paid media + consulting':'Not selected'}</div></div>
+    <div class="scard"><div class="scard-label">CSGF coverage</div><div class="scard-value ${covClass}">${csgfPct}%</div><div class="scard-sub">${fmt(csgfTot)} of ${fmt(total)}</div></div>`;
 
-  const activeCats = CATS.filter(c => !c.absorbed);
-  const maxMid = Math.max(...activeCats.map(c => {
-    if (c.fixedRange) return c.pctHiFixed / 2;
-    const lo = c.id === 'fte' ? fteCfg.ftePctLo : c.pctLo;
-    const hi = c.id === 'fte' ? fteCfg.ftePctHi : c.pctHi;
-    return total * (lo + hi) / 2 / 100;
+  const activeCats=BUDGET_CATS.filter(c=>!c.absorbed);
+  const maxMid=Math.max(...activeCats.map(c=>{
+    if(c.fixedRange)return c.pctHiFixed/2;
+    const lo=c.id==='fte'?fteCfg.ftePctLo:c.pctLo;
+    const hi=c.id==='fte'?fteCfg.ftePctHi:c.pctHi;
+    return total*(lo+hi)/2/100;
   }));
 
-  let tbody = '';
-  GROUPS.forEach(grp => {
-    const cats = CATS.filter(c => c.grp === grp);
-    tbody += `<tr class="grp-row"><td colspan="6">${grp}</td></tr>`;
-
-    // Accumulators for group subtotal
-    let grpLoSum = 0, grpHiSum = 0;
-    let grpSchoolSum = 0, grpGenSum = 0, grpMapSum = 0;
-
-    cats.forEach(c => {
-      if (c.absorbed) {
-        tbody += `<tr class="absorbed-row">
-          <td><div class="cat-name">${c.name}</div><div class="cat-sub absorbed">↳ ${c.absorbedLabel}</div></td>
-          <td colspan="5" class="absorbed-cell">No separate budget line — labor cost captured in FTE line</td>
-        </tr>`;
+  let tbody='';
+  BUDGET_GROUPS.forEach(grp=>{
+    const cats=BUDGET_CATS.filter(c=>c.grp===grp);
+    tbody+=`<tr class="grp-row"><td colspan="6">${grp}</td></tr>`;
+    let gLo=0,gHi=0,gS=0,gG=0,gM=0;
+    cats.forEach(c=>{
+      if(c.absorbed){
+        tbody+=`<tr class="absorbed-row"><td><div class="cat-name">${c.name}</div><div class="cat-sub absorbed">↳ ${c.absorbedLabel}</div></td><td colspan="5" class="absorbed-cell">No separate budget line</td></tr>`;
         return;
       }
-      const isOwnerFTE = c.id === 'fte';
-      const pctLo = isOwnerFTE ? fteCfg.ftePctLo : c.pctLo;
-      const pctHi = isOwnerFTE ? fteCfg.ftePctHi : c.pctHi;
-      const lo  = c.fixedRange ? 0           : total * pctLo / 100;
-      const hi  = c.fixedRange ? c.pctHiFixed : total * pctHi / 100;
-      const mid = c.fixedRange ? hi / 2       : (lo + hi) / 2;
-      const schoolAmt = mid * c.school;
-      const genAmt    = eirSRE > 0   ? mid * c.gen  : 0;
-      const mapAmt    = mapGrant > 0 ? mid * c.map  : 0;
-      const scale = maxMid > 0 ? mid / maxMid : 0, B = 78;
-      const sw = Math.round(c.school * B * scale);
-      const gw = eirSRE > 0   ? Math.round(c.gen * B * scale)  : 0;
-      const mw = mapGrant > 0 ? Math.round(c.map * B * scale)  : 0;
-      const uw = Math.max(Math.round(B * scale) - sw - gw - mw, 0);
-      const anchorBadge = c.anchor    ? '<span class="badge badge-anchor">anchor</span>' : '';
-      const mapBadge    = c.mapPrimary ? '<span class="badge badge-map">MAP primary</span>' : '';
-      tbody += `<tr class="${c.anchor ? 'anchor-row' : ''}">
-        <td><div class="cat-name ${c.anchor ? 'anchor' : ''}">${c.name}${anchorBadge}${mapBadge}</div><div class="cat-sub">${c.sub}</div></td>
-        <td class="mono">${c.fixedRange ? (lo === 0 ? '≤ '+fmtK(hi) : fmtK(lo)+'–'+fmtK(hi)) : (pctLo > 0 ? fmtK(lo) + '–' + fmtK(hi) : dash)}</td>
-        <td class="mono c-school">${schoolAmt > 50 ? fmtK(schoolAmt) : dash}</td>
-        <td class="mono c-gen">${genAmt > 50    ? fmtK(genAmt)    : dash}</td>
-        <td class="mono c-map">${mapAmt > 50    ? fmtK(mapAmt)    : dash}</td>
-        <td><div class="bar-outer"><div class="bar-seg" style="width:${sw}px;background:#1E6FA8;"></div><div class="bar-seg" style="width:${gw}px;background:#0E7C6B;"></div><div class="bar-seg" style="width:${mw}px;background:#C47D14;"></div><div class="bar-seg" style="width:${uw}px;background:#DDE1E8;"></div></div></td>
+      const isFTE=c.id==='fte';
+      const pL=isFTE?fteCfg.ftePctLo:c.pctLo;
+      const pH=isFTE?fteCfg.ftePctHi:c.pctHi;
+      const lo=c.fixedRange?0:total*pL/100;
+      const hi=c.fixedRange?c.pctHiFixed:total*pH/100;
+      const mid=c.fixedRange?hi/2:(lo+hi)/2;
+      const sA=mid*c.school,gA=eirSRE>0?mid*c.gen:0,mA=mapGrant>0?mid*c.map:0;
+      gLo+=lo;gHi+=hi;gS+=sA;gG+=gA;gM+=mA;
+      const sc=maxMid>0?mid/maxMid:0,B=72;
+      const sw=Math.round(c.school*B*sc),gw=eirSRE>0?Math.round(c.gen*B*sc):0,mw=mapGrant>0?Math.round(c.map*B*sc):0,uw=Math.max(Math.round(B*sc)-sw-gw-mw,0);
+      const ab=c.anchor?'<span class="badge badge-anchor">anchor</span>':'';
+      const mb=c.mapPrimary?'<span class="badge badge-map">MAP</span>':'';
+      tbody+=`<tr class="${c.anchor?'anchor-row':''}">
+        <td><div class="cat-name ${c.anchor?'anchor':''}">${c.name}${ab}${mb}</div><div class="cat-sub">${c.sub}</div></td>
+        <td class="mono">${c.fixedRange?(lo===0?'≤ '+fmtK(hi):fmtK(lo)+'–'+fmtK(hi)):(pL>0?fmtK(lo)+'–'+fmtK(hi):dash)}</td>
+        <td class="mono c-school">${sA>50?fmtK(sA):dash}</td>
+        <td class="mono c-gen">${gA>50?fmtK(gA):dash}</td>
+        <td class="mono c-map">${mA>50?fmtK(mA):dash}</td>
+        <td><div class="bar-outer"><div class="bar-seg" style="width:${sw}px;background:#1E6FA8"></div><div class="bar-seg" style="width:${gw}px;background:#0E7C6B"></div><div class="bar-seg" style="width:${mw}px;background:#C47D14"></div><div class="bar-seg" style="width:${uw}px;background:#DDE1E8"></div></div></td>
       </tr>`;
-
-      // Accumulate for subtotal
-      grpLoSum  += lo;
-      grpHiSum  += hi;
-      grpSchoolSum += schoolAmt;
-      grpGenSum    += genAmt;
-      grpMapSum    += mapAmt;
-
-      // Inject FTE benchmark expansion row
-      if (isOwnerFTE) {
-        const chipsHtml = fteCfg.chips.map(ch => {
-          const isConstant = ch.constant;
-          const isHighlight = ch.highlight;
-          const chipClass = isHighlight ? 'fte-bench-chip active' : isConstant ? 'fte-bench-chip constant' : 'fte-bench-chip';
-          const noteHtml = ch.note ? `<span style="font-size:.65rem;color:${isHighlight ? 'var(--blue)' : 'var(--gray-400)'};margin-left:2px;">${ch.note}</span>` : '';
-          return `<div class="${chipClass}">
-            ${isConstant ? '<span style="font-size:.65rem;font-weight:600;color:var(--gray-400);margin-right:2px;">always</span>' : ''}
-            <span class="chip-role">${ch.role}:</span>
-            <span class="chip-pct">${ch.pct}</span>
-            ${noteHtml}
-          </div>`;
+      if(isFTE){
+        const chHtml=fteCfg.chips.map(ch=>{
+          const cls=ch.highlight?'fte-bench-chip active':ch.constant?'fte-bench-chip constant':'fte-bench-chip';
+          const nt=ch.note?`<span style="font-size:.63rem;color:${ch.highlight?'var(--blue)':'var(--gray-400)'};margin-left:2px">${ch.note}</span>`:'';
+          return `<div class="${cls}">${ch.constant?'<span style="font-size:.63rem;font-weight:600;color:var(--gray-400);margin-right:2px">always</span>':''}<span class="chip-role">${ch.role}:</span><span class="chip-pct">${ch.pct}</span>${nt}</div>`;
         }).join('');
-        tbody += `<tr class="fte-bench-row">
-          <td colspan="6">
-            <div class="fte-bench-inner">
-              <div class="fte-bench-title">Who owns enrollment — ${fteCfg.label}</div>
-              <div class="fte-bench-grid">${chipsHtml}</div>
-              <div class="fte-bench-note" style="margin-bottom:4px;"><strong>Target: 80–100% FTE equivalent</strong> dedicated to SRE. Founder's 20–25% is the non-negotiable floor regardless of model.</div>
-              <div class="fte-bench-note">${fteCfg.riskNote}</div>
-              <div class="fte-runway">⏱ 12-month pre-open runway — ${fteCfg.runwayNote}</div>
-            </div>
-          </td>
-        </tr>`;
+        tbody+=`<tr class="fte-bench-row"><td colspan="6"><div class="fte-bench-inner">
+          <div class="fte-bench-title">Who owns enrollment — ${fteCfg.label}</div>
+          <div class="fte-bench-grid">${chHtml}</div>
+          <div class="fte-bench-note" style="margin-bottom:3px"><strong>Target: 80–100% FTE equivalent.</strong> Founder's 20–25% is non-negotiable regardless of model.</div>
+          <div class="fte-bench-note">${fteCfg.riskNote}</div>
+          <div class="fte-runway">⏱ 12-month pre-open runway — ${fteCfg.runwayNote}</div>
+        </div></td></tr>`;
       }
     });
-
-    // Group subtotal row
-    const grpMidSum = (grpLoSum + grpHiSum) / 2;
-    const grpScale  = maxMid > 0 ? Math.min(grpMidSum / maxMid, 1) : 0;
-    const B2 = 78;
-    const totalMid = grpSchoolSum + grpGenSum + grpMapSum;
-    const gsw = totalMid > 0 ? Math.round(grpSchoolSum / totalMid * B2 * grpScale) : 0;
-    const ggw = totalMid > 0 ? Math.round(grpGenSum    / totalMid * B2 * grpScale) : 0;
-    const gmw = totalMid > 0 ? Math.round(grpMapSum    / totalMid * B2 * grpScale) : 0;
-    const guw = Math.max(Math.round(B2 * grpScale) - gsw - ggw - gmw, 0);
-    const rangeStr = grpLoSum === 0 && grpHiSum > 0
-      ? '≤ ' + fmtK(grpHiSum)
-      : grpHiSum > 0
-        ? fmtK(grpLoSum) + '–' + fmtK(grpHiSum)
-        : '—';
-    tbody += `<tr class="grp-subtotal-row">
-      <td><span class="grp-subtotal-label">${grp} — subtotal</span></td>
-      <td class="grp-subtotal-val">${rangeStr}</td>
-      <td class="grp-subtotal-val">${grpSchoolSum > 50 ? fmtK(grpSchoolSum) : '—'}</td>
-      <td class="grp-subtotal-val">${grpGenSum    > 50 ? fmtK(grpGenSum)    : '—'}</td>
-      <td class="grp-subtotal-val">${grpMapSum    > 50 ? fmtK(grpMapSum)    : '—'}</td>
-      <td class="grp-subtotal-bar"><div class="grp-sub-bar-outer">
-        <div class="bar-seg" style="width:${gsw}px;background:rgba(100,160,220,.7);"></div>
-        <div class="bar-seg" style="width:${ggw}px;background:rgba(80,180,140,.7);"></div>
-        <div class="bar-seg" style="width:${gmw}px;background:rgba(220,160,60,.7);"></div>
-        <div class="bar-seg" style="width:${guw}px;background:rgba(255,255,255,.1);"></div>
-      </div></td>
-    </tr>`;
+    const rStr=gLo===0&&gHi>0?'≤ '+fmtK(gHi):gHi>0?fmtK(gLo)+'–'+fmtK(gHi):'—';
+    tbody+=`<tr class="grp-sub"><td><span class="gs-label">${grp} — subtotal</span></td><td class="gs-val">${rStr}</td><td class="gs-val">${gS>50?fmtK(gS):'—'}</td><td class="gs-val">${gG>50?fmtK(gG):'—'}</td><td class="gs-val">${gM>50?fmtK(gM):'—'}</td><td></td></tr>`;
   });
-  document.getElementById('table-body').innerHTML = tbody;
+  document.getElementById('bgt-body').innerHTML=tbody;
 
-  const fteMos = Math.round(fteMid / 5000);
-  const cplBudget = Math.round(cplLeads * 40);
-  const fteRange = fmtK(total * fteCfg.ftePctLo / 100) + '–' + fmtK(total * fteCfg.ftePctHi / 100);
-  document.getElementById('footnote').innerHTML = `
-    <p><strong>Staffing target: 80–100% FTE equivalent dedicated to SRE.</strong> The founder's 20–25% time contribution is the non-negotiable floor across all models — it covers vision, community presence, and enrollment oversight. The remaining 60–80% comes from the Principal, a dedicated Enrollment Director/Ops hire, or the founder themselves (Founder-led model). Because founder salaries are typically higher than a dedicated enrollment hire, the Founder-led model is not lower cost — just differently structured. ${fteCfg.riskNote}</p>
+  const cplBudget=Math.round(cplLeads*40);
+  document.getElementById('bgt-footnote').innerHTML=`
+    <p><strong>Staffing target: 80–100% FTE equivalent.</strong> Founder's 20–25% is the non-negotiable floor. Remaining 60–80% from Principal, Enrollment Director/Ops hire, or founder themselves. ${fteCfg.riskNote}</p>
     <p><strong>12-month runway.</strong> ${fteCfg.runwayNote}</p>
-    <p><strong>Fixed-cost items.</strong> Market scan (~$1k, assuming School Explorer for market analysis), list acquisition (~≤$2k), and traditional media/signage (~≤$15k) are flat-dollar caps — they don't scale linearly with enrollment targets.</p>
-    <p><strong>EIR general grant as pre-revenue bridge.</strong> Before Day 1, there is no school revenue. The general grant (${fmtK(eirSRE)} earmarked for SRE, ${eirPct}% of ${fmtK(eirGrant)}) is the primary enabler for personnel costs, field/event spend, and infrastructure. The remaining ${fmtK(eirRemain)} covers other start-up needs.</p>
-    <p><strong>MAP's lane.</strong> Paid media (lead gen, awareness, app gen), digital infrastructure, and Mariposa consulting. Does not cover personnel costs, field execution labor, or event costs.</p>
-    <p><strong>Benchmarks.</strong> ~$40 CPL → ${students} students requires ~${cplLeads.toLocaleString()} leads → implied paid media of ${fmt(cplBudget)}. Sector median offer-to-enrolled: 42%; Year 1 new school: plan for ~33%.</p>
-  `;
+    <p><strong>Fixed-cost items.</strong> Market scan (~$1k), list acquisition (~≤$2k), and traditional media/signage (~≤$15k) are flat-dollar caps.</p>
+    <p><strong>EIR general grant.</strong> ${fmtK(eirSRE)} earmarked for SRE (${eirPct}% of ${fmtK(eirGrant)}). Remaining ${fmtK(eirRemain)} covers other start-up needs.</p>
+    <p><strong>Benchmarks.</strong> ~$40 CPL → ${students} students requires ~${cplLeads.toLocaleString()} leads → implied paid media of ${fmt(cplBudget)}. Sector median offer-to-enrolled: 42%; Year 1: plan for ~33%.</p>`;
 }
 
-function shareURL() {
-  navigator.clipboard.writeText(location.href).then(() => {
-    const t = document.getElementById('share-toast');
-    t.classList.add('visible');
-    setTimeout(() => t.classList.remove('visible'), 2200);
+// ═══════════════════════════════════════════════════════════════════════════════
+// RESOURCES TAB
+// ═══════════════════════════════════════════════════════════════════════════════
+function renderResources(){
+  document.getElementById('res-grid').innerHTML = RESOURCES.map(r=>`
+    <div class="res-card">
+      <span class="rc-tag" style="background:${r.tagColor};color:${r.tagText}">${r.tag}</span>
+      <h3>${r.title}</h3>
+      <p class="rc-when">${r.when}</p>
+      <p>${r.desc}</p>
+      <a class="rc-link" href="${r.link}">Access resource →</a>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+function initBudget(){
+  const p=new URLSearchParams(location.search);
+  document.getElementById('students').value=+(p.get('bs')||100);
+  document.getElementById('scenario').value=+(p.get('bsc')||1250);
+  document.getElementById('eirgrant').value=+(p.get('beg')||250000);
+  document.getElementById('eirpct').value=+(p.get('bep')||20);
+  document.getElementById('map').value=+(p.get('bm')||40000);
+  ownershipMode=p.get('bow')||'enrollment-hire';
+  setOwnership(ownershipMode,true);
+  ['students','scenario','eirgrant','eirpct','map'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',renderBudget);
+    document.getElementById(id).addEventListener('change',renderBudget);
   });
 }
 
-['students','scenario','eirgrant','eirpct','map'].forEach(id => {
-  document.getElementById(id).addEventListener('input',  render);
-  document.getElementById(id).addEventListener('change', render);
-});
+// Boot
+const params=new URLSearchParams(location.search);
+const initTab=params.get('tab')||'welcome';
 
-const _init = getParams();
-sidebarOpen = _init.sidebar;
-ownershipMode = _init.ownership || 'enrollment-hire';
-initInputs();
-render();
+initBudget();
+initCalc();
+renderArc();
+renderResources();
+renderBudget();
+renderCalc();
+switchTab(initTab);
 </script>
 </body>
 </html>
