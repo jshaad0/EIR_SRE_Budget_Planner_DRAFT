@@ -443,6 +443,77 @@
   }
   .pct-badge.mid { background: var(--teal-light); color: var(--teal); }
   .pct-badge.hi  { background: var(--green-light); color: var(--green); }
+
+  /* ── Ownership toggle ── */
+  .own-toggle { display: flex; flex-direction: column; gap: 5px; }
+  .own-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+  .own-btn {
+    flex: 1; min-width: 0;
+    padding: 5px 6px;
+    font-family: var(--font-sans); font-size: .72rem; font-weight: 500;
+    color: var(--gray-600);
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    cursor: pointer; text-align: center;
+    transition: background .12s, border-color .12s, color .12s;
+    line-height: 1.3;
+  }
+  .own-btn:hover { background: var(--blue-pale); border-color: var(--blue-mid); }
+  .own-btn.selected {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: white;
+    font-weight: 600;
+  }
+  .own-hint {
+    font-size: .68rem; color: var(--gray-400);
+    line-height: 1.4; padding-top: 2px;
+  }
+
+  /* ── FTE benchmark row (injected below FTE table row) ── */
+  .fte-bench-row td { padding: 0 12px 10px; background: var(--blue-pale); }
+  .fte-bench-inner {
+    border: 1px solid var(--blue-light);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: .73rem;
+  }
+  .fte-bench-title {
+    font-size: .68rem; font-weight: 600;
+    color: var(--blue); text-transform: uppercase;
+    letter-spacing: .05em; margin-bottom: 5px;
+  }
+  .fte-bench-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+  .fte-bench-chip {
+    display: flex; align-items: center; gap: 5px;
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: .72rem;
+  }
+  .fte-bench-chip.active {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+  .fte-bench-chip.constant {
+    border-color: var(--gray-200);
+    background: var(--gray-50);
+    opacity: .85;
+  }
+  .fte-bench-chip .chip-role { color: var(--gray-600); }
+  .fte-bench-chip .chip-pct  { font-family: var(--font-mono); font-weight: 600; color: var(--navy); margin-left: 2px; }
+  .fte-bench-chip.active .chip-role,
+  .fte-bench-chip.active .chip-pct { color: var(--blue); }
+  .fte-bench-note { font-size: .7rem; color: var(--gray-500, #6B7280); line-height: 1.5; }
+  .fte-bench-note strong { color: var(--navy); }
+  .fte-runway {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: .68rem; font-weight: 600;
+    background: var(--teal-light); color: var(--teal);
+    padding: 2px 8px; border-radius: 3px; margin-top: 5px;
+  }
 </style>
 </head>
 <body>
@@ -530,6 +601,17 @@
             <option value="40000" selected>$40k</option>
             <option value="60000">$60k</option>
           </select>
+        </div>
+        <div class="divider"></div>
+        <div class="field-group own-toggle">
+          <label class="field-label">Who owns enrollment?</label>
+          <p class="field-sublabel">Adjusts FTE cost estimate</p>
+          <div class="own-btn-group">
+            <button class="own-btn" id="own-founder-led"       onclick="setOwnership('founder-led')">Founder-led</button>
+            <button class="own-btn" id="own-mixed"             onclick="setOwnership('mixed')">Founder + Principal</button>
+            <button class="own-btn selected" id="own-enrollment-hire" onclick="setOwnership('enrollment-hire')">Founder + Enrollment hire</button>
+          </div>
+          <p class="own-hint" id="own-hint">Founder at 20–25% baseline + dedicated Enrollment Director or Ops Leader at 80–100%</p>
         </div>
         <div class="divider"></div>
         <p class="panel-note">Inputs update the URL automatically — bookmark or share any scenario.</p>
@@ -726,15 +808,16 @@
 <script>
 // ── Data ──────────────────────────────────────────────────────────────────────
 const CATS = [
-  { id:'strategy', grp:'Planning & infrastructure', name:'Market scan & strategy plan', sub:'Demo analysis, competitive scan, funnel target-setting, go-to-market plan.', pctLo:3, pctHi:5, school:.2, gen:.6, map:.2, anchor:false, absorbed:false },
-  { id:'infra', grp:'Planning & infrastructure', name:'Initial infrastructure', sub:'Website, social/Meta setup, CRM, email/text platform, lottery platform, collateral, nurture flow setup.', pctLo:7, pctHi:12, school:.15, gen:.5, map:.35, anchor:false, absorbed:false },
-  { id:'awareness', grp:'Top of funnel', name:'Awareness marketing', sub:'Brand awareness campaigns; CPM/click-based. Goal: 6–8 impressions across TAM.', pctLo:4, pctHi:8, school:.1, gen:.3, map:.6, anchor:false, absorbed:false },
-  { id:'leadgen', grp:'Top of funnel', name:'Lead generation — paid media', sub:'Meta/Google lead-gen with clear CTA. Benchmark: <$40 CPL. Primary MAP target.', pctLo:12, pctHi:18, school:.05, gen:.2, map:.75, anchor:false, absorbed:false, mapPrimary:true },
-  { id:'appgen', grp:'Top of funnel', name:'App generation campaigns', sub:'"Apply Now" traffic campaigns. More efficient after lead-nurture is in place.', pctLo:3, pctHi:6, school:.1, gen:.25, map:.65, anchor:false, absorbed:false },
-  { id:'field', grp:'Conversion & field', name:'Field strategy', sub:'Canvassing, tabling, community events, geo-fenced door-knocking.', pctLo:6, pctHi:10, school:.3, gen:.6, map:.1, anchor:false, absorbed:false },
-  { id:'events', grp:'Conversion & field', name:'Event strategy', sub:'Open houses, tours, coffee w/ principal, pizza nights, popsicles in the park. Venue/food/materials.', pctLo:5, pctHi:9, school:.35, gen:.55, map:.1, anchor:false, absorbed:false },
-  { id:'traditional', grp:'Conversion & field', name:'Traditional media', sub:'Mailers, billboards, bus ads, pre-K kits, swag.', pctLo:3, pctHi:7, school:.25, gen:.55, map:.2, anchor:false, absorbed:false },
-  { id:'fte', grp:'Capacity & staff', name:'Dedicated FTE or ED time', sub:'Benchmark: 1.3 FTEs per 100 enrolled. Covers lead conversion, nurture, offer management, registration, onboarding, and Day 1 prep — the human infrastructure for yield. Cannot be 30% of someone\'s job.', pctLo:25, pctHi:35, school:.2, gen:.7, map:.1, anchor:true, absorbed:false },
+  { id:'strategy', grp:'Planning & infrastructure', name:'Market scan & strategy plan', sub:'Competitive scan, population trends, target-setting, go-to-market plan. School Explorer covers most market analysis; cost reflects strategy synthesis and planning support, not a full custom study.', pctLo:0, pctHiFixed:1000, school:.2, gen:.6, map:.2, anchor:false, absorbed:false, fixedRange:true },
+  { id:'infra', grp:'Planning & infrastructure', name:'Initial infrastructure', sub:'Website, social/Meta setup, CRM, email/text platform, lottery platform, nurture flow setup. Includes ad creative and collateral design — messaging, ad copy, and creative assets are part of infrastructure buildout, not a separate line.', pctLo:7, pctHi:12, school:.15, gen:.5, map:.35, anchor:false, absorbed:false },
+  { id:'awareness', grp:'Top of funnel', name:'Awareness marketing', sub:'Brand awareness campaigns; CPM/click-based. Goal: 6–8 impressions across TAM. Includes ad creative and messaging development as part of campaign setup.', pctLo:4, pctHi:8, school:.1, gen:.3, map:.6, anchor:false, absorbed:false },
+  { id:'leadgen', grp:'Top of funnel', name:'Lead generation — paid media', sub:'Meta/Google lead-gen ads with clear CTA (Learn More, Tour, Event). Benchmark: <$40 CPL. Ad copy and creative covered by campaign setup. Primary MAP target.', pctLo:12, pctHi:18, school:.05, gen:.2, map:.75, anchor:false, absorbed:false, mapPrimary:true },
+  { id:'appgen', grp:'Top of funnel', name:'App generation campaigns', sub:'"Apply Now" traffic campaigns. More efficient after lead-nurture is in place. Creative and copy included in campaign setup.', pctLo:3, pctHi:6, school:.1, gen:.25, map:.65, anchor:false, absorbed:false },
+  { id:'listacq', grp:'Top of funnel', name:'List acquisition', sub:'Purchase or FOIA request of contact lists (e.g., district enrollment data, community organization lists) for targeted outreach. Low cost but high-leverage for new markets with no existing lead pipeline.', pctLo:0, pctHiFixed:2000, school:.3, gen:.5, map:.2, anchor:false, absorbed:false, fixedRange:true },
+  { id:'traditional', grp:'Top of funnel', name:'Traditional media & signage', sub:'Mailers, billboards, bus ads, yard signs, banners, and outdoor signage. Hard to track — use QR codes where possible. Signage (building-level and community) included here. Reaches families not captured by digital.', pctLo:0, pctHiFixed:15000, school:.3, gen:.5, map:.2, anchor:false, absorbed:false, fixedRange:true },
+  { id:'field', grp:'Conversion & field', name:'Field strategy — hard costs', sub:'Swag, printed materials (flyers, brochures, door hangers), table/booth reservation fees, event entry fees, and branded supplies for canvassing and tabling. FTE time for field work (block-walking, canvassing, community events) is captured in the staffing line.', pctLo:3, pctHi:6, school:.35, gen:.55, map:.1, anchor:false, absorbed:false },
+  { id:'events', grp:'Conversion & field', name:'Event strategy', sub:'Open houses, tours, coffee w/ principal, pizza nights, popsicles in the park. Venue, food, and materials. Event messaging and invitation copy are part of nurture comms, not a separate line. FTE time to plan and run events is in the staffing line.', pctLo:5, pctHi:9, school:.35, gen:.55, map:.1, anchor:false, absorbed:false },
+  { id:'fte', grp:'Capacity & staff', name:'Dedicated enrollment capacity', sub:'Target: 80–100% FTE equivalent dedicated to SRE. Founder contributes 20–25% as a non-negotiable baseline (vision, community presence, oversight). Remaining 60–80% comes from a Principal, dedicated Enrollment Director/Ops hire, or the founder themselves. Covers: field execution, lead conversion, event management, nurture, offer management, registration, and onboarding.', pctLo:25, pctHi:35, school:.2, gen:.7, map:.1, anchor:true, absorbed:false },
   { id:'leadconv', grp:'Capacity & staff', name:'Lead conversion — calls, texts, emails to leads', sub:'Direct outreach to move leads toward application. 24–48 hr response benchmark.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE makes the calls, manages the pipeline.' },
   { id:'postoffer', grp:'Yield & onboarding', name:'Post-app, offer & registration nurture', sub:'Drip sequences + direct outreach post-application, post-offer, through registration completion.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE owns the back half of the funnel.' },
   { id:'postaccept', grp:'Yield & onboarding', name:'Post-acceptance nurture through FWoS', sub:'Calls, texts, events from registration through Day 1. Plan for 15%+ no-show in Year 1.', pctLo:0, pctHi:0, school:0, gen:0, map:0, anchor:false, absorbed:true, absorbedLabel:'Absorbed into FTE line — FTE manages summer melt prevention and onboarding.' },
@@ -757,6 +840,7 @@ function getParams() {
     eirpct:   +p.get('ep') || 20,
     map:      +p.get('m')  || 40000,
     sidebar:  p.get('sb') !== '0',
+    ownership: p.get('ow') || 'fte',
   };
 }
 function pushParams(v) {
@@ -764,6 +848,7 @@ function pushParams(v) {
   p.set('s', v.students); p.set('sc', v.scenario);
   p.set('eg', v.eirgrant); p.set('ep', v.eirpct);
   p.set('m', v.map); p.set('sb', v.sidebar ? '1' : '0');
+  p.set('ow', v.ownership || 'fte');
   history.replaceState(null, '', '?' + p.toString());
 }
 function initInputs() {
@@ -778,6 +863,7 @@ function initInputs() {
     document.getElementById('sidebar-col').style.display = 'none';
     document.getElementById('sidebar-toggle-btn').classList.remove('active');
   }
+  setOwnership(v.ownership, true); // true = silent (don't re-render yet)
 }
 
 // ── Sidebar toggle ────────────────────────────────────────────────────────────
@@ -809,6 +895,73 @@ function toggleSection(btn) {
   content.classList.toggle('open', !isOpen);
 }
 
+// ── Ownership mode ────────────────────────────────────────────────────────────
+// Framing: Founder always contributes 20–25% of their time to SRE — that's the floor,
+// non-negotiable regardless of model. The toggle controls who fills the remaining
+// 60–80% FTE needed to hit the 80–100% total target.
+// Budget range is the same across modes (founder salary is often higher than a
+// dedicated hire, so founder-led is not cheaper — just differently structured).
+
+let ownershipMode = 'enrollment-hire'; // 'founder-led' | 'mixed' | 'enrollment-hire'
+
+const OWN_CONFIG = {
+  'founder-led': {
+    label: 'Founder-led',
+    hint:  'Founder absorbs both the 20–25% baseline + remaining 60–80% — totaling 80–100% of their role on SRE',
+    ftePctLo: 25, ftePctHi: 35,
+    founderPct: '80–100%',
+    chips: [
+      { role: 'Founder', pct: '80–100%', note: 'total SRE time', constant: false, highlight: true },
+      { role: 'Additional staff', pct: 'none', note: '' },
+    ],
+    runwayNote: 'Founder time is the scarcest resource. Pre-facility commitments, hiring, and academic design all compete for founder attention — plan for 12+ months of dedicated focus pre-open.',
+    riskNote: 'Possible for a short sprint, but unsustainable as opening approaches. Conversion and yield work — calling leads, running events, following up on applications — will compress when other launch demands peak. Works best when the founder is also the Principal and has strong community roots.',
+  },
+  mixed: {
+    label: 'Founder + Principal',
+    hint:  'Founder at 20–25% baseline + Principal absorbs the remaining 60–80%',
+    ftePctLo: 25, ftePctHi: 35,
+    founderPct: '20–25%',
+    chips: [
+      { role: 'Founder', pct: '20–25%', note: 'non-negotiable baseline', constant: true, highlight: false },
+      { role: 'Principal', pct: '60–75%', note: 'until July/Aug hiring season', constant: false, highlight: true },
+    ],
+    runwayNote: 'Principal SRE time drops sharply in July–August when curriculum design and teacher hiring peak. Plan for the founder to absorb more yield work during that window, or accept reduced back-half-of-funnel coverage.',
+    riskNote: 'Moderate risk. Works when founder and principal have clear lane separation and the principal is bought in on enrollment as a core part of their pre-open role. Breaks down when the principal is pulled into operations or academic planning.',
+  },
+  'enrollment-hire': {
+    label: 'Founder + Enrollment hire',
+    hint:  'Founder at 20–25% baseline + dedicated Enrollment Director or Ops Leader at 80–100%',
+    ftePctLo: 25, ftePctHi: 35,
+    founderPct: '20–25%',
+    chips: [
+      { role: 'Founder', pct: '20–25%', note: 'non-negotiable baseline', constant: true, highlight: false },
+      { role: 'Enrollment Director / Ops', pct: '80–100%', note: 'dedicated hire', constant: false, highlight: true },
+    ],
+    runwayNote: 'Hire 12 months pre-open. The earlier the hire, the more runway for community relationship-building, infrastructure setup, and lead pipeline development before the lottery window opens.',
+    riskNote: 'Lowest risk. The enrollment hire owns execution end-to-end — lead conversion, nurture, events, post-offer yield — freeing the founder to focus on vision and external relationships. Benchmark: ~1.3 FTEs per 100 newly enrolled students (2024 SRE Study). Collegiate Academies hired a year early — their best pre-open investment.',
+  },
+};
+
+function setOwnership(mode, silent) {
+  ownershipMode = mode;
+  // Update button states
+  ['founder-led','mixed','enrollment-hire'].forEach(m => {
+    const btn = document.getElementById('own-' + m);
+    if (btn) btn.classList.toggle('selected', m === mode);
+  });
+  // Update hint
+  const cfg = OWN_CONFIG[mode];
+  const hint = document.getElementById('own-hint');
+  if (hint) hint.textContent = cfg.hint;
+  // Update URL
+  const v = getParams();
+  v.ownership = mode;
+  pushParams(v);
+  // Re-render unless silent init
+  if (!silent) render();
+}
+
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
   const students = +document.getElementById('students').value;
@@ -836,7 +989,8 @@ function render() {
   if (csgfPct < 50) covClass = 'crit';
   else if (csgfPct < 70) covClass = 'warn';
 
-  const fteMid   = total * (25 + 35) / 2 / 100;
+  const fteCfg   = OWN_CONFIG[ownershipMode];
+  const fteMid   = total * (fteCfg.ftePctLo + fteCfg.ftePctHi) / 2 / 100;
   const cplLeads = students * 5;
 
   document.getElementById('summary-row').innerHTML = `
@@ -848,7 +1002,12 @@ function render() {
   `;
 
   const activeCats = CATS.filter(c => !c.absorbed);
-  const maxMid = Math.max(...activeCats.map(c => total * (c.pctLo + c.pctHi) / 2 / 100));
+  const maxMid = Math.max(...activeCats.map(c => {
+    if (c.fixedRange) return c.pctHiFixed / 2;
+    const lo = c.id === 'fte' ? fteCfg.ftePctLo : c.pctLo;
+    const hi = c.id === 'fte' ? fteCfg.ftePctHi : c.pctHi;
+    return total * (lo + hi) / 2 / 100;
+  }));
 
   let tbody = '';
   GROUPS.forEach(grp => {
@@ -862,7 +1021,13 @@ function render() {
         </tr>`;
         return;
       }
-      const lo = total * c.pctLo / 100, hi = total * c.pctHi / 100, mid = (lo + hi) / 2;
+      const isOwnerFTE = c.id === 'fte';
+      // Override pct range for FTE row based on ownership mode
+      const pctLo = isOwnerFTE ? fteCfg.ftePctLo : c.pctLo;
+      const pctHi = isOwnerFTE ? fteCfg.ftePctHi : c.pctHi;
+      const lo  = c.fixedRange ? 0           : total * pctLo / 100;
+      const hi  = c.fixedRange ? c.pctHiFixed : total * pctHi / 100;
+      const mid = c.fixedRange ? hi / 2       : (lo + hi) / 2;
       const schoolAmt = mid * c.school;
       const genAmt    = eirSRE > 0   ? mid * c.gen  : 0;
       const mapAmt    = mapGrant > 0 ? mid * c.map  : 0;
@@ -875,23 +1040,56 @@ function render() {
       const mapBadge    = c.mapPrimary ? '<span class="badge badge-map">MAP primary</span>' : '';
       tbody += `<tr class="${c.anchor ? 'anchor-row' : ''}">
         <td><div class="cat-name ${c.anchor ? 'anchor' : ''}">${c.name}${anchorBadge}${mapBadge}</div><div class="cat-sub">${c.sub}</div></td>
-        <td class="mono">${c.pctLo > 0 ? fmtK(lo) + '–' + fmtK(hi) : dash}</td>
+        <td class="mono">${c.fixedRange ? (lo === 0 ? '≤ '+fmtK(hi) : fmtK(lo)+'–'+fmtK(hi)) : (pctLo > 0 ? fmtK(lo) + '–' + fmtK(hi) : dash)}</td>
         <td class="mono c-school">${schoolAmt > 50 ? fmtK(schoolAmt) : dash}</td>
         <td class="mono c-gen">${genAmt > 50    ? fmtK(genAmt)    : dash}</td>
         <td class="mono c-map">${mapAmt > 50    ? fmtK(mapAmt)    : dash}</td>
         <td><div class="bar-outer"><div class="bar-seg" style="width:${sw}px;background:#1E6FA8;"></div><div class="bar-seg" style="width:${gw}px;background:#0E7C6B;"></div><div class="bar-seg" style="width:${mw}px;background:#C47D14;"></div><div class="bar-seg" style="width:${uw}px;background:#DDE1E8;"></div></div></td>
       </tr>`;
+
+      // Inject FTE benchmark expansion row
+      if (isOwnerFTE) {
+        const chipsHtml = fteCfg.chips.map(ch => {
+          const isConstant = ch.constant;
+          const isHighlight = ch.highlight;
+          const chipClass = isHighlight ? 'fte-bench-chip active' : isConstant ? 'fte-bench-chip constant' : 'fte-bench-chip';
+          const noteHtml = ch.note ? `<span style="font-size:.65rem;color:${isHighlight ? 'var(--blue)' : 'var(--gray-400)'};margin-left:2px;">${ch.note}</span>` : '';
+          return `<div class="${chipClass}">
+            ${isConstant ? '<span style="font-size:.65rem;font-weight:600;color:var(--gray-400);margin-right:2px;">always</span>' : ''}
+            <span class="chip-role">${ch.role}:</span>
+            <span class="chip-pct">${ch.pct}</span>
+            ${noteHtml}
+          </div>`;
+        }).join('');
+        const totalNote = fteCfg.label === 'Founder-led'
+          ? 'Total: 80–100% FTE equivalent — founder absorbs all SRE capacity'
+          : 'Total: 80–100% FTE equivalent across both roles — the minimum needed to run a comprehensive strategy';
+        tbody += `<tr class="fte-bench-row">
+          <td colspan="6">
+            <div class="fte-bench-inner">
+              <div class="fte-bench-title">Who owns enrollment — ${fteCfg.label}</div>
+              <div class="fte-bench-grid">${chipsHtml}</div>
+              <div class="fte-bench-note" style="margin-bottom:4px;"><strong>Target: 80–100% FTE equivalent</strong> dedicated to SRE. Founder's 20–25% is the non-negotiable floor regardless of model.</div>
+              <div class="fte-bench-note">${fteCfg.riskNote}</div>
+              <div class="fte-runway">⏱ 12-month pre-open runway — ${fteCfg.runwayNote}</div>
+            </div>
+          </td>
+        </tr>`;
+      }
     });
   });
   document.getElementById('table-body').innerHTML = tbody;
 
   const fteMos = Math.round(fteMid / 5000);
   const cplBudget = Math.round(cplLeads * 40);
+  const fteRange = fmtK(total * fteCfg.ftePctLo / 100) + '–' + fmtK(total * fteCfg.ftePctHi / 100);
   document.getElementById('footnote').innerHTML = `
-    <p><strong>FTE as the yield engine.</strong> Lead conversion, post-offer nurture, offer management, registration follow-through, and summer onboarding are all FTE labor — no separate line items. At this scenario, the FTE line is ${fmtK(fteMid)}, roughly ${fteMos} months of a $5k/month enrollment hire. Underfunding this line doesn't just reduce capacity; it leaves the entire back half of the funnel unworked.</p>
-    <p><strong>EIR general grant as pre-revenue bridge.</strong> Before Day 1, there is no school revenue. The general grant (${fmtK(eirSRE)} earmarked for SRE, ${eirPct}% of ${fmtK(eirGrant)}) is the primary enabler for FTE salaries, field/event costs, and infrastructure. The remaining ${fmtK(eirRemain)} covers other start-up needs. At 10% (~$25k), SRE depends heavily on MAP and ED time. At 20–25% (~$50–63k), a dedicated enrollment FTE for 6–9 months becomes fundable. At 30%+ (~$75k+), both FTE and meaningful field/event spend are covered.</p>
-    <p><strong>MAP's lane.</strong> Paid media lead gen, awareness campaigns, digital infrastructure, and Mariposa consulting. Not FTE salaries, canvassing, or event execution. The overlap zone is automation tooling and collateral setup.</p>
-    <p><strong>Benchmarks.</strong> ~$40 CPL target → ${students} enrolled students requires ~${cplLeads.toLocaleString()} leads → implied paid media budget of ${fmt(cplBudget)}. Sector median offer-to-enrolled: 42%; Year 1 new school: plan for ~33%. Build pipeline volume accordingly.</p>
+    <p><strong>Staffing target: 80–100% FTE equivalent dedicated to SRE.</strong> The founder's 20–25% time contribution is the non-negotiable floor across all models — it covers vision, community presence, and enrollment oversight. The remaining 60–80% comes from the Principal, a dedicated Enrollment Director/Ops hire, or the founder themselves (Founder-led model). Because founder salaries are typically higher than a dedicated enrollment hire, the Founder-led model is not lower cost — just differently structured. ${fteCfg.riskNote}</p>
+    <p><strong>12-month runway.</strong> ${fteCfg.runwayNote}</p>
+    <p><strong>Fixed-cost items.</strong> Market scan (~$1k, assuming School Explorer for market analysis), list acquisition (~≤$2k), and traditional media/signage (~≤$15k) are flat-dollar caps — they don't scale linearly with enrollment targets.</p>
+    <p><strong>EIR general grant as pre-revenue bridge.</strong> Before Day 1, there is no school revenue. The general grant (${fmtK(eirSRE)} earmarked for SRE, ${eirPct}% of ${fmtK(eirGrant)}) is the primary enabler for personnel costs, field/event spend, and infrastructure. The remaining ${fmtK(eirRemain)} covers other start-up needs.</p>
+    <p><strong>MAP's lane.</strong> Paid media (lead gen, awareness, app gen), digital infrastructure, and Mariposa consulting. Does not cover personnel costs, field execution labor, or event costs.</p>
+    <p><strong>Benchmarks.</strong> ~$40 CPL → ${students} students requires ~${cplLeads.toLocaleString()} leads → implied paid media of ${fmt(cplBudget)}. Sector median offer-to-enrolled: 42%; Year 1 new school: plan for ~33%.</p>
   `;
 }
 
@@ -910,6 +1108,7 @@ function shareURL() {
 
 const _init = getParams();
 sidebarOpen = _init.sidebar;
+ownershipMode = _init.ownership || 'enrollment-hire';
 initInputs();
 render();
 </script>
